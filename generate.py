@@ -1057,6 +1057,54 @@ def build_dashboard(wb):
     return ws
 
 
+def build_territory_planner(wb):
+    """Territory planner — M25 corridor estate research for site clustering."""
+    ws = wb.create_sheet("Territory Planner")
+    headers = [
+        "Estate/Park Name", "Area", "Postcode", "M25 Junction",
+        "Size (acres)", "Est. Workers", "Businesses",
+        "Business Types", "Anchor Tenants", "Food Access",
+        "Vending Score (1-10)", "Tier", "Notes",
+    ]
+    for col, h in enumerate(headers, 1):
+        ws.cell(row=1, column=col, value=h)
+    style_header_row(ws, 1, len(headers))
+    set_col_widths(ws, [24, 22, 10, 18, 12, 16, 12, 30, 30, 30, 18, 8, 36])
+
+    add_dropdown(ws, "L2:L50", ["1", "2", "3"])
+
+    territories = load_json("territories.json")
+    for i, t in enumerate(territories, 2):
+        ws.cell(row=i, column=1, value=t.get("name", ""))
+        ws.cell(row=i, column=2, value=t.get("area", ""))
+        ws.cell(row=i, column=3, value=t.get("postcode", ""))
+        ws.cell(row=i, column=4, value=t.get("m25_junction", ""))
+        ws.cell(row=i, column=5, value=t.get("size_acres"))
+        ws.cell(row=i, column=6, value=t.get("workers", ""))
+        ws.cell(row=i, column=7, value=t.get("businesses", ""))
+        ws.cell(row=i, column=8, value=t.get("types", ""))
+        ws.cell(row=i, column=9, value=t.get("anchor_tenants", ""))
+        ws.cell(row=i, column=10, value=t.get("food_access", ""))
+        cell_k = ws.cell(row=i, column=11, value=t.get("vending_score"))
+        cell_k.font = BOLD_FONT
+        ws.cell(row=i, column=12, value=t.get("tier"))
+        ws.cell(row=i, column=13, value=t.get("notes", ""))
+
+        # Colour code by tier
+        if t.get("tier") == 1:
+            for col in range(1, 14):
+                ws.cell(row=i, column=col).fill = PatternFill(
+                    start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
+        elif t.get("tier") == 3:
+            for col in range(1, 14):
+                ws.cell(row=i, column=col).fill = PatternFill(
+                    start_color="FFEB9C", end_color="FFEB9C", fill_type="solid")
+
+    ws.freeze_panes = "A2"
+    ws.auto_filter.ref = f"A1:M{max(len(territories)+1, 20)}"
+    return ws
+
+
 def build_operations_log(wb):
     """Operational log — Behold loop: Actions layer. The doing."""
     ws = wb.create_sheet("Operations Log")
@@ -1306,6 +1354,7 @@ def main():
     build_competitor_analysis(wb)
     build_startup_costs(wb)
     build_micro_market(wb)
+    build_territory_planner(wb)
     build_location_tracker(wb)
     build_weekly_pnl(wb)
     build_operations_log(wb)
