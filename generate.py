@@ -325,7 +325,7 @@ def build_startup_costs(wb):
     capital_items = [
         ("Vending Machine (refurb)", 1750, True),
         ("VAT on Machine", None, False),  # formula
-        ("Nayax VPOS Touch", 395, True),
+        ("Nayax VPOS Touch", 450, True),
         ("VAT on Nayax", None, False),
         ("Delivery & Installation", 150, True),
         ("Initial Stock Fill", 200, True),
@@ -711,24 +711,21 @@ def build_dashboard(wb):
     # These are approximate — the formulas will reference the right cells
     # We'll use named references in the summary section
     dashboard_metrics = [
-        ("Number of Machines", "='Startup Costs'!B2", GBP_FORMAT.replace("£", "")),
-        ("Total Upfront Investment", None, GBP_FORMAT),
-        ("Monthly Operating Cost", None, GBP_FORMAT),
-        ("Est. Monthly Revenue", None, GBP_FORMAT),
-        ("Est. Monthly Profit", None, GBP_FORMAT),
-        ("Months to Breakeven", None, "0.0"),
+        ("Number of Machines", "='Startup Costs'!B2", "0"),
+        ("Total Upfront Investment", "='Startup Costs'!D35", GBP_FORMAT),
+        ("Monthly Operating Cost", "='Startup Costs'!D32", GBP_FORMAT),
+        ("Est. Monthly Revenue", "='Startup Costs'!D38", GBP_FORMAT),
+        ("Est. Monthly Profit", "='Startup Costs'!D39", GBP_FORMAT),
+        ("Months to Breakeven", "='Startup Costs'!D40", "0.0"),
     ]
 
-    # Instead of fragile row references, we'll add simple labels
-    # that users can connect after reviewing Startup Costs
-    for label, _, fmt in dashboard_metrics:
+    for label, formula, fmt in dashboard_metrics:
         ws.cell(row=r, column=1, value=label).font = BOLD_FONT
         ws.cell(row=r, column=1).border = THIN_BORDER
         cell = ws.cell(row=r, column=2)
         cell.border = THIN_BORDER
         cell.number_format = fmt
-        if label == "Number of Machines":
-            cell.value = "='Startup Costs'!B2"
+        cell.value = formula
         r += 1
 
     r += 1
