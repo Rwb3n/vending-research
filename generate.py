@@ -375,11 +375,13 @@ def build_startup_costs(wb):
         ("Company Registration (Ltd)", 50, 1, "Companies House"),
         ("Food Business Registration", 0, 1, "Free, local council, 28 days before trading"),
         ("Food Hygiene Certificate", 150, 1, "Level 2 online course"),
-        ("Public Liability Insurance (annual)", 150, 1, "£1-2M cover"),
+        ("Public Liability Insurance (annual)", 150, 1, "£1-2M cover — get quotes, may be £300-600"),
         ("Product Liability Insurance (annual)", 100, 1, "Often bundled with above"),
         ("PAT Testing", 50, None, "Per machine"),  # qty = B2
         ("Nayax KYC/Setup Fee", 45, 1, "Per Nayax account"),
         ("Branding/Wrapping (optional)", 200, None, "Custom vinyl wrap per machine"),
+        ("Printed Materials (leaflets/cards)", 75, 1, "For site pitching"),
+        ("Customer Acquisition (time/fuel)", 100, None, "£100 per placed machine — ~10 pitches per win"),
     ]
     setup_start = r
     for label, cost, qty, note in setup_items:
@@ -418,11 +420,13 @@ def build_startup_costs(wb):
 
     opex_items = [
         ("Nayax Monthly Fee", 10, False),
+        ("Nayax SIM/Data", 5, False),
         ("Site Rent / Commission", 100, True),
         ("Stock Replenishment", 400, True),
         ("Travel/Fuel", 80, True),
         ("Electricity (if not site-covered)", 0, True),
         ("Maintenance/Repairs Fund", 30, True),
+        ("Accountant (pro-rata monthly)", 50, False),
         ("Misc/Phone/Admin", 20, False),
     ]
     opex_start = r
@@ -492,6 +496,253 @@ def build_startup_costs(wb):
         cell_d.number_format = GBP_FORMAT
         cell_d.font = BOLD_FONT
         r += 1
+
+    ws.freeze_panes = "A3"
+    return ws
+
+
+def build_micro_market(wb):
+    """Micro-market / honesty shop cost calculator — parallel track to vending."""
+    ws = wb.create_sheet("Micro-Market Costs")
+    set_col_widths(ws, [36, 22, 16, 18, 30])
+
+    ws["A1"] = "MICRO-MARKET / HONESTY SHOP CALCULATOR"
+    ws["A1"].font = TITLE_FONT
+
+    ws["A2"] = "Number of sites:"
+    ws["A2"].font = BOLD_FONT
+    ws["B2"] = 2
+    ws["B2"].font = BLUE_FONT
+    ws["B2"].fill = INPUT_FILL
+    ws["C2"] = "sites"
+
+    # Section: Capital Costs
+    r = 4
+    for col_letter in ["A", "B", "C", "D"]:
+        ws[f"{col_letter}{r}"].fill = SECTION_FILL
+    ws.cell(row=r, column=1, value="CAPITAL COSTS (PER SITE)").font = SECTION_FONT
+    ws.cell(row=r, column=2, value="Per Site (£)").font = BOLD_FONT
+    ws.cell(row=r, column=3, value="Quantity").font = BOLD_FONT
+    ws.cell(row=r, column=4, value="Total (£)").font = BOLD_FONT
+
+    capital_items = [
+        ("Commercial Fridge (undercounter/upright)", 350, "Argos/Amazon Business"),
+        ("Shelving Unit", 100, "Freestanding or wall-mounted"),
+        ("Payment Terminal (scanner/card reader)", 400, "SumUp Kiosk / Nayax / PayPoint — TBC"),
+        ("VAT on Equipment", None, "20% on above"),
+        ("Signage & Branding", 100, "Price labels, branding board"),
+        ("Initial Stock Fill", 250, "Wider range than vending"),
+    ]
+
+    r = 5
+    cap_start = r
+    for label, default, note in capital_items:
+        ws.cell(row=r, column=1, value=label).border = THIN_BORDER
+        cell_b = ws.cell(row=r, column=2)
+        if label == "VAT on Equipment":
+            ws.cell(row=r, column=2).value = f"=SUM(B{cap_start}:B{r-1})*0.2"
+        else:
+            cell_b.value = default
+            cell_b.font = BLUE_FONT
+            cell_b.fill = INPUT_FILL
+        cell_b.number_format = GBP_FORMAT
+        cell_b.border = THIN_BORDER
+        ws.cell(row=r, column=3).value = "=$B$2"
+        ws.cell(row=r, column=3).border = THIN_BORDER
+        ws.cell(row=r, column=4).value = f"=B{r}*C{r}"
+        ws.cell(row=r, column=4).number_format = GBP_FORMAT
+        ws.cell(row=r, column=4).border = THIN_BORDER
+        ws.cell(row=r, column=5, value=note).font = Font(italic=True, color="808080", size=10)
+        r += 1
+
+    ws.cell(row=r, column=1, value="Subtotal Capital").font = BOLD_FONT
+    ws.cell(row=r, column=1).border = THIN_BORDER
+    ws.cell(row=r, column=4).value = f"=SUM(D{cap_start}:D{r-1})"
+    ws.cell(row=r, column=4).number_format = GBP_FORMAT
+    ws.cell(row=r, column=4).font = BOLD_FONT
+    ws.cell(row=r, column=4).border = THIN_BORDER
+    mm_capital_subtotal = r
+    r += 2
+
+    # Setup costs (shared with vending — company, hygiene, insurance)
+    for col_letter in ["A", "B", "C", "D"]:
+        ws[f"{col_letter}{r}"].fill = SECTION_FILL
+    ws.cell(row=r, column=1, value="SETUP COSTS (ONE-OFF)").font = SECTION_FONT
+    ws.cell(row=r, column=2, value="Cost (£)").font = BOLD_FONT
+    ws.cell(row=r, column=3, value="Qty").font = BOLD_FONT
+    ws.cell(row=r, column=4, value="Total (£)").font = BOLD_FONT
+    r += 1
+
+    setup_items = [
+        ("Company Registration (Ltd)", 50, 1, "Shared with vending if same entity"),
+        ("Food Business Registration", 0, 1, "Free, local council"),
+        ("Food Hygiene Certificate", 150, 1, "Level 2 online course"),
+        ("Public Liability Insurance (annual)", 200, 1, "May be higher for open shelving"),
+        ("Product Liability Insurance (annual)", 100, 1, "Covers consumed products"),
+        ("Printed Materials", 75, 1, "Leaflets for site pitching"),
+        ("Customer Acquisition (time/fuel)", 100, None, "Per site placed"),
+    ]
+    setup_start = r
+    for label, cost, qty, note in setup_items:
+        ws.cell(row=r, column=1, value=label).border = THIN_BORDER
+        cell_b = ws.cell(row=r, column=2, value=cost)
+        cell_b.font = BLUE_FONT
+        cell_b.fill = INPUT_FILL
+        cell_b.number_format = GBP_FORMAT
+        cell_b.border = THIN_BORDER
+        if qty is not None:
+            ws.cell(row=r, column=3, value=qty).border = THIN_BORDER
+        else:
+            ws.cell(row=r, column=3).value = "=$B$2"
+            ws.cell(row=r, column=3).border = THIN_BORDER
+        ws.cell(row=r, column=4).value = f"=B{r}*C{r}"
+        ws.cell(row=r, column=4).number_format = GBP_FORMAT
+        ws.cell(row=r, column=4).border = THIN_BORDER
+        ws.cell(row=r, column=5, value=note).font = Font(italic=True, color="808080", size=10)
+        r += 1
+
+    ws.cell(row=r, column=1, value="Subtotal Setup").font = BOLD_FONT
+    ws.cell(row=r, column=1).border = THIN_BORDER
+    ws.cell(row=r, column=4).value = f"=SUM(D{setup_start}:D{r-1})"
+    ws.cell(row=r, column=4).number_format = GBP_FORMAT
+    ws.cell(row=r, column=4).font = BOLD_FONT
+    ws.cell(row=r, column=4).border = THIN_BORDER
+    mm_setup_subtotal = r
+    r += 2
+
+    # Monthly operating costs
+    for col_letter in ["A", "B", "C", "D"]:
+        ws[f"{col_letter}{r}"].fill = SECTION_FILL
+    ws.cell(row=r, column=1, value="MONTHLY OPERATING COSTS").font = SECTION_FONT
+    ws.cell(row=r, column=2, value="Per Site/Month (£)").font = BOLD_FONT
+    ws.cell(row=r, column=4, value="Total/Month (£)").font = BOLD_FONT
+    r += 1
+
+    opex_items = [
+        ("Payment Terminal Fee", 10, False, "Monthly subscription"),
+        ("Site Rent / Commission", 75, True, "Often lower than vending — you supply product"),
+        ("Stock Replenishment", 500, True, "Higher volume, wider range"),
+        ("Shrinkage Budget (3-5%)", None, False, "=stock * shrinkage rate"),
+        ("Travel/Fuel", 60, True, "Faster restock = fewer visits"),
+        ("Waste/Spoilage (fresh food)", 30, True, "Set to 0 if no fresh items"),
+        ("Accountant (pro-rata monthly)", 50, False, "Shared with vending if same entity"),
+        ("Misc/Phone/Admin", 20, False, ""),
+    ]
+    opex_start = r
+    for label, default, is_input, note in opex_items:
+        ws.cell(row=r, column=1, value=label).border = THIN_BORDER
+        cell_b = ws.cell(row=r, column=2)
+        cell_b.border = THIN_BORDER
+        if label == "Shrinkage Budget (3-5%)":
+            # 4% of stock cost
+            stock_row = opex_start + 2  # Stock Replenishment row
+            cell_b.value = f"=B{stock_row}*0.04"
+        elif is_input:
+            cell_b.value = default
+            cell_b.font = BLUE_FONT
+            cell_b.fill = INPUT_FILL
+        else:
+            cell_b.value = default
+        cell_b.number_format = GBP_FORMAT
+
+        if label in ("Misc/Phone/Admin", "Accountant (pro-rata monthly)"):
+            ws.cell(row=r, column=4).value = f"=B{r}"
+        else:
+            ws.cell(row=r, column=4).value = f"=B{r}*$B$2"
+        ws.cell(row=r, column=4).number_format = GBP_FORMAT
+        ws.cell(row=r, column=4).border = THIN_BORDER
+        if note:
+            ws.cell(row=r, column=5, value=note).font = Font(italic=True, color="808080", size=10)
+        r += 1
+
+    ws.cell(row=r, column=1, value="Total Monthly Opex").font = BOLD_FONT
+    ws.cell(row=r, column=1).border = THIN_BORDER
+    ws.cell(row=r, column=4).value = f"=SUM(D{opex_start}:D{r-1})"
+    ws.cell(row=r, column=4).number_format = GBP_FORMAT
+    ws.cell(row=r, column=4).font = BOLD_FONT
+    ws.cell(row=r, column=4).border = THIN_BORDER
+    mm_opex_total = r
+    r += 2
+
+    # Summary + comparison
+    for col_letter in ["A", "B", "C", "D"]:
+        ws[f"{col_letter}{r}"].fill = SECTION_FILL
+    ws.cell(row=r, column=1, value="SUMMARY").font = SECTION_FONT
+    r += 1
+
+    mm_summary_start = r
+    ws.cell(row=r, column=1, value="Total Upfront Investment").font = BOLD_FONT
+    ws.cell(row=r, column=1).border = THIN_BORDER
+    ws.cell(row=r, column=4).value = f"=D{mm_capital_subtotal}+D{mm_setup_subtotal}"
+    ws.cell(row=r, column=4).number_format = GBP_FORMAT
+    ws.cell(row=r, column=4).font = BOLD_FONT
+    ws.cell(row=r, column=4).border = THIN_BORDER
+    r += 1
+
+    ws.cell(row=r, column=1, value="Monthly Operating Cost").font = BOLD_FONT
+    ws.cell(row=r, column=1).border = THIN_BORDER
+    ws.cell(row=r, column=4).value = f"=D{mm_opex_total}"
+    ws.cell(row=r, column=4).number_format = GBP_FORMAT
+    ws.cell(row=r, column=4).font = BOLD_FONT
+    ws.cell(row=r, column=4).border = THIN_BORDER
+    r += 1
+
+    ws.cell(row=r, column=1, value="Est. Monthly Revenue per Site").font = BOLD_FONT
+    ws.cell(row=r, column=1).border = THIN_BORDER
+    cell_b = ws.cell(row=r, column=2, value=2500)
+    cell_b.font = BLUE_FONT
+    cell_b.fill = INPUT_FILL
+    cell_b.number_format = GBP_FORMAT
+    cell_b.border = THIN_BORDER
+    ws.cell(row=r, column=4).value = f"=B{r}*$B$2"
+    ws.cell(row=r, column=4).number_format = GBP_FORMAT
+    ws.cell(row=r, column=4).font = BOLD_FONT
+    ws.cell(row=r, column=4).border = THIN_BORDER
+    ws.cell(row=r, column=5, value="Higher avg basket than vending").font = Font(
+        italic=True, color="808080", size=10)
+    r += 1
+
+    ws.cell(row=r, column=1, value="Est. Monthly Revenue Total").font = BOLD_FONT
+    ws.cell(row=r, column=1).border = THIN_BORDER
+    ws.cell(row=r, column=4).value = f"=D{r-1}"
+    ws.cell(row=r, column=4).number_format = GBP_FORMAT
+    ws.cell(row=r, column=4).font = BOLD_FONT
+    ws.cell(row=r, column=4).border = THIN_BORDER
+    r += 1
+
+    ws.cell(row=r, column=1, value="Est. Monthly Profit").font = BOLD_FONT
+    ws.cell(row=r, column=1).border = THIN_BORDER
+    ws.cell(row=r, column=4).value = f"=D{r-1}-D{mm_summary_start+1}"
+    ws.cell(row=r, column=4).number_format = GBP_FORMAT
+    ws.cell(row=r, column=4).font = BOLD_FONT
+    ws.cell(row=r, column=4).border = THIN_BORDER
+    r += 1
+
+    ws.cell(row=r, column=1, value="Months to Breakeven").font = BOLD_FONT
+    ws.cell(row=r, column=1).border = THIN_BORDER
+    ws.cell(row=r, column=4).value = f"=D{mm_summary_start}/D{r-1}"
+    ws.cell(row=r, column=4).number_format = "0.0"
+    ws.cell(row=r, column=4).font = BOLD_FONT
+    ws.cell(row=r, column=4).border = THIN_BORDER
+    r += 2
+
+    # Comparison box
+    for col_letter in ["A", "B", "C", "D"]:
+        ws[f"{col_letter}{r}"].fill = LIGHT_BLUE_FILL
+    ws.cell(row=r, column=1, value="VS VENDING (from Startup Costs sheet)").font = SECTION_FONT
+    r += 1
+    ws.cell(row=r, column=1, value="Vending: Upfront Investment")
+    ws.cell(row=r, column=4).value = "='Startup Costs'!D39"
+    ws.cell(row=r, column=4).number_format = GBP_FORMAT
+    r += 1
+    ws.cell(row=r, column=1, value="Micro-Market: Upfront Investment")
+    ws.cell(row=r, column=4).value = f"=D{mm_summary_start}"
+    ws.cell(row=r, column=4).number_format = GBP_FORMAT
+    r += 1
+    ws.cell(row=r, column=1, value="Capital Saving").font = BOLD_FONT
+    ws.cell(row=r, column=4).value = f"=D{r-2}-D{r-1}"
+    ws.cell(row=r, column=4).number_format = GBP_FORMAT
+    ws.cell(row=r, column=4).font = BOLD_FONT
 
     ws.freeze_panes = "A3"
     return ws
@@ -712,11 +963,11 @@ def build_dashboard(wb):
     # We'll use named references in the summary section
     dashboard_metrics = [
         ("Number of Machines", "='Startup Costs'!B2", "0"),
-        ("Total Upfront Investment", "='Startup Costs'!D35", GBP_FORMAT),
-        ("Monthly Operating Cost", "='Startup Costs'!D32", GBP_FORMAT),
-        ("Est. Monthly Revenue", "='Startup Costs'!D38", GBP_FORMAT),
-        ("Est. Monthly Profit", "='Startup Costs'!D39", GBP_FORMAT),
-        ("Months to Breakeven", "='Startup Costs'!D40", "0.0"),
+        ("Total Upfront Investment", "='Startup Costs'!D39", GBP_FORMAT),
+        ("Monthly Operating Cost", "='Startup Costs'!D36", GBP_FORMAT),
+        ("Est. Monthly Revenue", "='Startup Costs'!D42", GBP_FORMAT),
+        ("Est. Monthly Profit", "='Startup Costs'!D43", GBP_FORMAT),
+        ("Months to Breakeven", "='Startup Costs'!D44", "0.0"),
     ]
 
     for label, formula, fmt in dashboard_metrics:
@@ -818,6 +1069,7 @@ def main():
     build_supplier_directory(wb)
     build_competitor_analysis(wb)
     build_startup_costs(wb)
+    build_micro_market(wb)
     build_location_tracker(wb)
     build_weekly_pnl(wb)
 
