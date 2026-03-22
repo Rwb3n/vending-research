@@ -1057,6 +1057,242 @@ def build_dashboard(wb):
     return ws
 
 
+def build_operations_log(wb):
+    """Operational log — Behold loop: Actions layer. The doing."""
+    ws = wb.create_sheet("Operations Log")
+    set_col_widths(ws, [14, 14, 20, 12, 14, 14, 36, 30, 14])
+
+    # ── Restock Log section ──
+    ws["A1"] = "RESTOCK & VISIT LOG"
+    ws["A1"].font = TITLE_FONT
+
+    headers = [
+        "Date", "Machine/Site ID", "Location", "Visit Type",
+        "Time Spent (min)", "Mileage", "Items Restocked (summary)",
+        "Issues Found", "Cost of Stock (£)",
+    ]
+    for col, h in enumerate(headers, 1):
+        ws.cell(row=2, column=col, value=h)
+    style_header_row(ws, 2, len(headers))
+
+    add_dropdown(ws, "D3:D500", [
+        "Restock", "Top-up", "Maintenance", "Inspection",
+        "Install", "Removal", "Emergency",
+    ])
+
+    # Pre-format input rows
+    for r in range(3, 20):
+        ws.cell(row=r, column=1).number_format = "DD/MM/YYYY"
+        ws.cell(row=r, column=5).number_format = "0"
+        ws.cell(row=r, column=6).number_format = "0.0"
+        ws.cell(row=r, column=9).number_format = GBP_PENCE_FORMAT
+        for col in range(1, 10):
+            ws.cell(row=r, column=col).font = BLUE_FONT
+
+    # ── Maintenance Log section (starts at row 22) ──
+    mr = 22
+    ws.cell(row=mr, column=1, value="MAINTENANCE LOG").font = TITLE_FONT
+    mr += 1
+
+    maint_headers = [
+        "Date", "Machine/Site ID", "Fault Description", "Severity",
+        "Action Taken", "Parts Cost (£)", "Labour Cost (£)",
+        "Resolved", "Under Warranty",
+    ]
+    for col, h in enumerate(maint_headers, 1):
+        ws.cell(row=mr, column=col, value=h)
+    style_header_row(ws, mr, len(maint_headers))
+    mr += 1
+
+    add_dropdown(ws, f"D{mr}:D{mr+50}", ["Low", "Medium", "High", "Critical"])
+    add_dropdown(ws, f"H{mr}:H{mr+50}", ["Yes", "No", "Pending Parts"])
+    add_dropdown(ws, f"I{mr}:I{mr+50}", ["Yes", "No", "Claim Submitted"])
+
+    for r in range(mr, mr + 10):
+        ws.cell(row=r, column=1).number_format = "DD/MM/YYYY"
+        ws.cell(row=r, column=6).number_format = GBP_PENCE_FORMAT
+        ws.cell(row=r, column=7).number_format = GBP_PENCE_FORMAT
+        for col in range(1, 10):
+            ws.cell(row=r, column=col).font = BLUE_FONT
+
+    # ── Operational Beliefs (Behold: WHY layer) ──
+    br = mr + 12
+    for col_letter in ["A", "B", "C", "D", "E"]:
+        ws[f"{col_letter}{br}"].fill = LIGHT_BLUE_FILL
+    ws.cell(row=br, column=1, value="OPERATIONAL BELIEFS (review quarterly)").font = SECTION_FONT
+    br += 1
+
+    beliefs = [
+        ("Cluster density over scattered reach",
+         "Add sites near existing ones. Revenue per hour of drive time is the real metric."),
+        ("Stock-out costs more than overstock",
+         "Empty slot = lost sale + trained-away customer. Overstocked shelf = zero cost (non-perishable)."),
+        ("Data-driven restocking, not calendar-driven",
+         "Check Nayax/sales data before every run. Let demand set visit frequency, not habit."),
+        ("Revenue per operator-hour is the north star",
+         "Track time spent per site. If a site takes 2 hours for £30/week revenue, drop it."),
+        ("Every visit is a gate: observe, orient, act, log",
+         "Pre-visit: check dashboard. On-site: restock + inspect + clean. Post-visit: log anomalies."),
+    ]
+    for principle, explanation in beliefs:
+        ws.cell(row=br, column=1, value=principle).font = BOLD_FONT
+        ws.cell(row=br, column=4, value=explanation).font = Font(
+            italic=True, color="808080", size=10)
+        br += 1
+
+    # ── Methods (Behold: HOW WE WORK layer — review monthly) ──
+    br += 1
+    for col_letter in ["A", "B", "C", "D", "E"]:
+        ws[f"{col_letter}{br}"].fill = LIGHT_BLUE_FILL
+    ws.cell(row=br, column=1, value="OPERATIONAL METHODS (review monthly)").font = SECTION_FONT
+    br += 1
+
+    methods = [
+        "Method", "Current Setting", "Last Reviewed", "Notes",
+    ]
+    for col, h in enumerate(methods, 1):
+        ws.cell(row=br, column=col, value=h).font = BOLD_FONT
+    br += 1
+
+    method_rows = [
+        ("Purchasing strategy", "JIT (buy morning of restock)", "", "Switch to bulk when 5+ machines"),
+        ("Restock frequency", "2x/week per machine", "", "Adjust per site based on Nayax data"),
+        ("Product rotation cadence", "Monthly — swap bottom 3 sellers", "", "Track via Weekly P&L"),
+        ("Pricing strategy", "60%+ net margin target", "", "Premium sites can go higher"),
+        ("Margin floor", "30% net minimum to stock", "", "Below this, product isn't worth the slot"),
+        ("Visit time target", "30 min per machine", "", "Including travel, restock, clean"),
+        ("Shrinkage threshold (micro-market)", "5% — investigate above this", "", "Camera or format change if persistent"),
+    ]
+    for method, setting, reviewed, notes in method_rows:
+        ws.cell(row=br, column=1, value=method)
+        ws.cell(row=br, column=2, value=setting).font = BLUE_FONT
+        ws.cell(row=br, column=2).fill = INPUT_FILL
+        ws.cell(row=br, column=3, value=reviewed).number_format = "DD/MM/YYYY"
+        ws.cell(row=br, column=4, value=notes).font = Font(italic=True, color="808080", size=10)
+        br += 1
+
+    ws.freeze_panes = "A3"
+    return ws
+
+
+def build_performance_review(wb):
+    """Performance review — Behold loop: Gates layer. The orient/decide step."""
+    ws = wb.create_sheet("Performance Review")
+    set_col_widths(ws, [24, 16, 16, 16, 16, 16, 16, 30])
+
+    ws["A1"] = "PERFORMANCE REVIEW — THE ORIENTATION LOOP"
+    ws["A1"].font = TITLE_FONT
+    ws["A2"] = "Fill weekly. Review monthly. Beliefs and methods evolve from what you see here."
+    ws["A2"].font = Font(italic=True, color="808080", size=11)
+
+    # ── Site Performance (weekly snapshot) ──
+    r = 4
+    for col_letter in ["A", "B", "C", "D", "E", "F", "G", "H"]:
+        ws[f"{col_letter}{r}"].fill = SECTION_FILL
+    ws.cell(row=r, column=1, value="SITE PERFORMANCE (weekly)").font = SECTION_FONT
+    r += 1
+
+    site_headers = [
+        "Machine/Site ID", "Week Commencing", "Revenue (£)",
+        "Stock Cost (£)", "Gross Margin (%)", "Vends/Day (est.)",
+        "Operator Hours", "Revenue per Hour (£)",
+    ]
+    for col, h in enumerate(site_headers, 1):
+        ws.cell(row=r, column=col, value=h)
+    style_header_row(ws, r, len(site_headers))
+    r += 1
+
+    site_data_start = r
+    for i in range(15):  # 15 rows for data
+        row = r + i
+        ws.cell(row=row, column=2).number_format = "DD/MM/YYYY"
+        ws.cell(row=row, column=3).number_format = GBP_PENCE_FORMAT
+        ws.cell(row=row, column=4).number_format = GBP_PENCE_FORMAT
+        # Gross margin formula
+        ws.cell(row=row, column=5).value = f'=IF(C{row}="","",(C{row}-D{row})/C{row})'
+        ws.cell(row=row, column=5).number_format = PCT_FORMAT
+        ws.cell(row=row, column=6).number_format = "0.0"
+        ws.cell(row=row, column=7).number_format = "0.0"
+        # Revenue per hour
+        ws.cell(row=row, column=8).value = f'=IF(G{row}="","",C{row}/G{row})'
+        ws.cell(row=row, column=8).number_format = GBP_PENCE_FORMAT
+        for col in [1, 2, 3, 4, 6, 7]:
+            ws.cell(row=row, column=col).font = BLUE_FONT
+
+    # Conditional formatting: highlight low rev/hour
+    red_fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
+    green_fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
+    ws.conditional_formatting.add(
+        f"H{site_data_start}:H{site_data_start+14}",
+        CellIsRule(operator="lessThan", formula=["15"], fill=red_fill))
+    ws.conditional_formatting.add(
+        f"H{site_data_start}:H{site_data_start+14}",
+        CellIsRule(operator="greaterThan", formula=["30"], fill=green_fill))
+
+    r = site_data_start + 16
+
+    # ── Product Performance (monthly) ──
+    for col_letter in ["A", "B", "C", "D", "E", "F", "G", "H"]:
+        ws[f"{col_letter}{r}"].fill = SECTION_FILL
+    ws.cell(row=r, column=1, value="PRODUCT PERFORMANCE (monthly)").font = SECTION_FONT
+    r += 1
+
+    prod_headers = [
+        "Product", "Units Sold (month)", "Revenue (£)",
+        "COGS (£)", "Net Margin (%)", "Rank",
+        "Action", "Notes",
+    ]
+    for col, h in enumerate(prod_headers, 1):
+        ws.cell(row=r, column=col, value=h)
+    style_header_row(ws, r, len(prod_headers))
+    r += 1
+
+    add_dropdown(ws, f"G{r}:G{r+30}", [
+        "Keep", "Increase stock", "Reduce stock",
+        "Replace", "Test new price", "Drop",
+    ])
+
+    prod_data_start = r
+    for i in range(20):
+        row = r + i
+        ws.cell(row=row, column=3).number_format = GBP_PENCE_FORMAT
+        ws.cell(row=row, column=4).number_format = GBP_PENCE_FORMAT
+        ws.cell(row=row, column=5).value = f'=IF(C{row}="","",(C{row}-D{row})/C{row})'
+        ws.cell(row=row, column=5).number_format = PCT_FORMAT
+        for col in [1, 2, 3, 4, 6]:
+            ws.cell(row=row, column=col).font = BLUE_FONT
+
+    r = prod_data_start + 21
+
+    # ── Monthly Review Gate (Behold: GATES layer) ──
+    for col_letter in ["A", "B", "C", "D", "E", "F", "G", "H"]:
+        ws[f"{col_letter}{r}"].fill = LIGHT_BLUE_FILL
+    ws.cell(row=r, column=1,
+            value="MONTHLY REVIEW GATE — answer before making changes").font = SECTION_FONT
+    r += 1
+
+    gate_questions = [
+        ("OBSERVE", "What does the data say?", "Which sites are above/below target? Which products moved? Which didn't?"),
+        ("ORIENT", "What does this mean?", "Is a low-performing site a bad location or bad product mix? Is a top seller genuinely popular or just the only option?"),
+        ("DECIDE", "What will you change?", "Add/drop products, adjust prices, change visit frequency, drop/add sites. One change at a time — otherwise you can't tell what worked."),
+        ("ACT", "Do it. Log it.", "Record changes in Methods table on Operations Log. Set a review date. Don't change again until you have 4 weeks of data."),
+        ("PROTECT", "What could go wrong?", "Will this change break something? Customer complaint risk? Stock-out risk? Cost increase?"),
+    ]
+    for phase, question, guidance in gate_questions:
+        ws.cell(row=r, column=1, value=phase).font = BOLD_FONT
+        ws.cell(row=r, column=2, value=question).font = BOLD_FONT
+        ws.cell(row=r, column=4, value=guidance).font = Font(italic=True, color="808080", size=10)
+        r += 1
+
+    r += 1
+    ws.cell(row=r, column=1,
+            value="KEY RULE: One change at a time. Wait 4 weeks. Then measure.").font = Font(
+                bold=True, color="CC0000", size=11)
+
+    ws.freeze_panes = "A5"
+    return ws
+
+
 def main():
     wb = Workbook()
     # Remove default sheet
@@ -1072,6 +1308,8 @@ def main():
     build_micro_market(wb)
     build_location_tracker(wb)
     build_weekly_pnl(wb)
+    build_operations_log(wb)
+    build_performance_review(wb)
 
     output = os.path.join(os.path.dirname(__file__), "TheSnackChoice_London_Research.xlsx")
     wb.save(output)
