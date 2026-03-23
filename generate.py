@@ -781,6 +781,23 @@ def build_location_tracker(wb):
     add_dropdown(ws, "O2:O200", ["Yes", "No", "TBC"])
     add_dropdown(ws, "P2:P200", ["Yes", "No", "TBC"])
 
+    # Pre-populate with leads
+    leads = load_json("leads.json")
+    for i, lead in enumerate(leads, 2):
+        ws.cell(row=i, column=1, value=lead.get("site_name", ""))
+        ws.cell(row=i, column=2, value=lead.get("address", ""))
+        ws.cell(row=i, column=3, value=lead.get("postcode", ""))
+        ws.cell(row=i, column=4, value=lead.get("borough", ""))
+        ws.cell(row=i, column=5, value=lead.get("site_type", ""))
+        ws.cell(row=i, column=10, value="Lead")
+        ws.cell(row=i, column=11, value=lead.get("est_daily_footfall"))
+        ws.cell(row=i, column=12, value=lead.get("existing_vending", "Unknown"))
+        ws.cell(row=i, column=17, value=lead.get("proposed_deal", ""))
+        ws.cell(row=i, column=20, value=lead.get("est_weekly_revenue"))
+        ws.cell(row=i, column=20).number_format = GBP_FORMAT
+        ws.cell(row=i, column=21, value=lead.get("score"))
+        ws.cell(row=i, column=22, value=lead.get("notes", ""))
+
     # Conditional formatting on Status column (J)
     green_fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
     red_fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
