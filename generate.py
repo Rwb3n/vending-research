@@ -1341,6 +1341,148 @@ def build_performance_review(wb):
     return ws
 
 
+def build_strategy_notes(wb):
+    """Strategy notes — key decisions, rationale, and gotchas from planning."""
+    ws = wb.create_sheet("Strategy Notes")
+    set_col_widths(ws, [80])
+
+    ws["A1"] = "STRATEGY NOTES & RATIONALE"
+    ws["A1"].font = TITLE_FONT
+    ws["A2"] = "Key decisions and reasoning behind the business plan. Review before making strategic changes."
+    ws["A2"].font = Font(italic=True, color="808080", size=11)
+
+    r = 4
+    sections = [
+        ("WHY NOT INNER LONDON", [
+            "London zones 1-3 have a corner shop or Tesco Express every 200 metres.",
+            "Vending's value proposition is 'convenience — no alternative nearby'.",
+            "In high-density retail areas, that assumption fails. Anyone wanting a snack can walk 2 minutes to a shop with more choice and lower prices.",
+            "Result: vend volumes in inner London offices will be 8-12/day — often below breakeven.",
+            "",
+            "DECISION: Target M25 corridor industrial estates and business parks instead.",
+            "These are genuine food deserts where workers drive in, park, and are stuck for 8-12 hours.",
+            "The nearest food option is often a 10-minute drive away.",
+        ]),
+        ("CLUSTER ECONOMICS", [
+            "One machine in isolation has poor unit economics — travel cost eats the margin.",
+            "Five machines clustered on the same estate share travel, restocking trips, and reputation.",
+            "The 2nd machine in a cluster is almost free to service because travel is already accounted for.",
+            "",
+            "NUMBERS:",
+            "  1 machine (scattered, with rent): £55-386/month profit",
+            "  5 machines (clustered, free placement): £1,419/month profit",
+            "  Effective hourly rate jumps from £15-25/hr to £44/hr",
+            "",
+            "DECISION: Pick ONE estate, pitch 5-6 sites, place 3-5 machines as a cluster.",
+            "Don't scatter across London. Density creates a step function in profitability.",
+        ]),
+        ("FREE PLACEMENT VS SITE RENT", [
+            "Site rent of £100/month per machine means you need 16+ vends/day just to break even.",
+            "Most offices and small workplaces won't sustain 16 vends/day.",
+            "",
+            "With free placement (you provide the service, they get happy staff):",
+            "  Breakeven drops to just 4 vends/day.",
+            "  Even a quiet 50-person office turns a small profit.",
+            "",
+            "Free placement is standard — Selecta and nationals do this.",
+            "You give up nothing except a possible revenue share (10-15% of takings to the site).",
+            "",
+            "DECISION: Always pitch free placement first. Only accept rent if the site is exceptional.",
+        ]),
+        ("VENDING VS MICRO-MARKET (HYBRID STRATEGY)", [
+            "Vending machine = zero-trust. Mechanical enforcement. Works anywhere, even unmonitored.",
+            "Honesty shop / micro-market = high-trust. Social enforcement. Only works with accountable populations.",
+            "",
+            "The decision gate: 'Is this a closed, accountable population?'",
+            "  YES (office staff room, warehouse break room) → micro-market (cheaper, more products, higher basket)",
+            "  NO (public corridor, gym lobby, hotel) → vending machine (theft-proof)",
+            "",
+            "Micro-market setup: ~£800-1,200 vs ~£2,700 per vending machine.",
+            "Same supply chain, same route, same operator — just different dispensing format.",
+            "",
+            "DECISION: Match format to trust level of each site. Use both.",
+        ]),
+        ("REALISTIC VEND VOLUMES BY LOCATION", [
+            "Don't plan from spreadsheet optimism. Plan from human behaviour:",
+            "",
+            "  Quiet office (50 staff):       5-8 vends/day     — barely viable",
+            "  Busy office (150 staff):       15-22 vends/day   — solid",
+            "  Small gym:                     8-15 vends/day    — narrow window (post-workout)",
+            "  Leisure centre:                20-35 vends/day   — families, impulse, captive",
+            "  Hospital corridor:             25-40 vends/day   — stressed, time-poor, no alternatives",
+            "  Warehouse/factory (200 staff): 15-20 vends/day   — break room, limited options",
+            "  University:                    25-40 vends/day   — but term-time only (39 weeks/year)",
+            "",
+            "Your real revenue base is the 20-25% of workers who are habitual vending buyers.",
+            "The same 30-40 people rotating through the week. Most never use it.",
+        ]),
+        ("PRODUCT MIX GOTCHAS", [
+            "RED BULL IS A MARGIN TRAP: wholesale £1.35+, vend price £2.00 = only 30% net margin.",
+            "  Stock Monster Energy instead: wholesale £0.82, vend price £2.00 = 59% net margin.",
+            "  Same category, same customer, double the margin.",
+            "",
+            "Water is the silent winner: wholesale £0.22, vend £1.00 = 75% margin.",
+            "Hot drinks (per cup) have 85-89% margins but need a different machine type.",
+            "",
+            "Track what sells. Within 4-6 weeks, 8-10 products will generate most revenue.",
+            "Overweight those. Don't waste slots on slow movers — every slot is rental space.",
+            "",
+            "Stock-out cost > overstock cost. A Mars bar sitting in the machine costs nothing.",
+            "An empty Mars bar slot costs you every customer who wanted one.",
+        ]),
+        ("NORTH STAR METRIC", [
+            "The metric that matters is REVENUE PER OPERATOR-HOUR, not revenue per machine.",
+            "",
+            "A machine doing £500/week is great — unless it takes 4 hours including the drive.",
+            "The same £500 from a machine 5 minutes away is 4x more valuable to you.",
+            "",
+            "Track time spent per site. If a site takes 2 hours for £30/week revenue, drop it.",
+            "On the Performance Review sheet, revenue-per-hour cells turn red below £15.",
+        ]),
+        ("LONDON-SPECIFIC COSTS", [
+            "Congestion charge: £15/day if in the zone. M25 estates avoid this entirely.",
+            "ULEZ: your van must comply.",
+            "Parking: £5-15/visit in London vs free on industrial estates.",
+            "Loading bay access at commercial buildings — not always available.",
+            "",
+            "These costs don't exist on M25 corridor estates. Factor them if you take inner London sites.",
+        ]),
+        ("THE BEHOLD LOOP (HOW TO IMPROVE)", [
+            "Monthly review cycle — built into the Performance Review sheet:",
+            "",
+            "  OBSERVE — What does the data say? (sales, margins, vend counts)",
+            "  ORIENT — What does this mean? (bad location or bad product mix?)",
+            "  DECIDE — What will you change? (one thing at a time)",
+            "  ACT — Do it. Log it in the Operations Log.",
+            "  PROTECT — What could go wrong? (stock-out risk, customer complaints?)",
+            "",
+            "KEY RULE: One change at a time. Wait 4 weeks. Then measure.",
+            "If you change two things at once, you can't tell which one worked.",
+        ]),
+    ]
+
+    for title, lines in sections:
+        for col_letter in ["A"]:
+            ws[f"{col_letter}{r}"].fill = SECTION_FILL
+        ws.cell(row=r, column=1, value=title).font = SECTION_FONT
+        r += 1
+        for line in lines:
+            if line == "":
+                r += 1
+                continue
+            if line.startswith("DECISION:") or line.startswith("KEY RULE:") or line.startswith("NUMBERS:"):
+                ws.cell(row=r, column=1, value=line).font = Font(bold=True, color="CC0000", size=11)
+            elif line.startswith("  "):
+                ws.cell(row=r, column=1, value=line).font = Font(name="Consolas", size=10)
+            else:
+                ws.cell(row=r, column=1, value=line)
+            r += 1
+        r += 1
+
+    ws.freeze_panes = "A4"
+    return ws
+
+
 def main():
     wb = Workbook()
     # Remove default sheet
@@ -1348,6 +1490,7 @@ def main():
 
     # Build all sheets
     build_dashboard(wb)
+    build_strategy_notes(wb)
     build_product_catalog(wb)
     build_machine_specs(wb)
     build_supplier_directory(wb)
