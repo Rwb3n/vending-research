@@ -169,11 +169,11 @@ def main():
   <div class="section">
     <div class="callout red">
       <b>Key Insight:</b> Inner London has a corner shop every 200m — vending's "captive audience" value proposition fails.
-      M25 corridor industrial estates are genuine food deserts where workers are stuck for 8-12 hour shifts with no walkable food.
+      Industrial estates and leisure venues are where people are genuinely captive — either spatially (no walkable food) or temporally (stuck for 1-4 hours).
     </div>
     <div class="callout green">
-      <b>The Play:</b> Pick ONE estate. Pitch 5-6 sites for free placement. Place 3-5 machines as a cluster.
-      Effective rate: £44/hour at 8 hours/week. Revenue per operator-hour is the north star, not revenue per machine.
+      <b>The Play:</b> Croydon corridor — 16 pre-qualified leads within 30 min of base. Mix industrial sites (Beddington Lane),
+      leisure venues (Oxygen, Kidspace), gyms, and car dealerships along one restock route. Free placement, 5-7 sites in phase 1.
     </div>
   </div>
 
@@ -193,12 +193,12 @@ def main():
     <h2>Strategy Summary</h2>
     <div class="strategy">
       <ul>
-        <li><b>Target M25 corridor, not inner London.</b> Corner shops every 200m kill the captive audience assumption in zones 1-3. Industrial estates are genuine food deserts.</li>
-        <li><b>Cluster machines on single estates.</b> 5 clustered machines = £44/hr effective rate vs 1 scattered machine at £15-25/hr. The 2nd machine in a cluster is almost free to service.</li>
+        <li><b>Croydon corridor first.</b> Romell is Croydon-based — prioritise by operator proximity, not market size. Beddington Lane (2mi) beats Park Royal (12mi).</li>
+        <li><b>Two types of captivity.</b> Spatial (industrial estates — no walkable food) and temporal (gyms, leisure, dealerships — people stuck for hours). Mix both on one route.</li>
+        <li><b>Cluster along one restock route.</b> 16 leads within 30 min of Croydon. 5 clustered machines = £44/hr effective rate.</li>
         <li><b>Free placement over site rent.</b> Breakeven drops from 16 vends/day to 4 vends/day. Always pitch free placement first.</li>
-        <li><b>Hybrid format.</b> Vending machines for public/untrusted sites. Micro-markets (honesty shops) for closed office/warehouse populations. Match format to trust level.</li>
-        <li><b>Revenue per operator-hour is the metric.</b> A machine doing £500/week is poor if it takes 4 hours including the drive. Track time per site, not just revenue per machine.</li>
-        <li><b>Product mix: stock Monster not Red Bull.</b> Red Bull = 30% net margin. Monster = 59% margin. Same category, same customer, double the profit.</li>
+        <li><b>Hybrid format.</b> Vending for public/untrusted sites. Micro-markets for closed office/warehouse staff rooms. Match format to trust level.</li>
+        <li><b>Product mix: stock Monster not Red Bull.</b> Red Bull = 30% margin. Monster = 59%. Same category, double the profit.</li>
       </ul>
     </div>
   </div>
