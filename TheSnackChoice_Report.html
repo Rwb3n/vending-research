@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Snack Choice — Territory Analysis</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a; background: #f8f9fa; }
+  .header { background: #1e293b; color: white; padding: 32px 24px; }
+  .header h1 { font-size: 28px; margin-bottom: 8px; }
+  .header p { color: #94a3b8; font-size: 16px; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  #map { height: 500px; border-radius: 12px; margin-bottom: 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .legend { background: white; padding: 12px 16px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .legend-item { display: flex; align-items: center; margin: 4px 0; font-size: 14px; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 50%; margin-right: 8px; border: 1px solid #333; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .stat-card .number { font-size: 32px; font-weight: 700; color: #1e293b; }
+  .stat-card .label { font-size: 14px; color: #64748b; margin-top: 4px; }
+  .section { margin-bottom: 32px; }
+  .section h2 { font-size: 22px; margin-bottom: 16px; color: #1e293b; }
+  table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  th { background: #1e293b; color: white; padding: 12px 16px; text-align: left; font-size: 13px; text-transform: uppercase; }
+  td { padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: #f1f5f9; }
+  .callout { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px 20px; border-radius: 0 8px 8px 0; margin-bottom: 16px; font-size: 15px; }
+  .callout.red { background: #fee2e2; border-color: #dc2626; }
+  .callout.green { background: #dcfce7; border-color: #22c55e; }
+  .strategy { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .strategy li { margin: 8px 0; line-height: 1.6; }
+  .footer { text-align: center; padding: 32px; color: #94a3b8; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>The Snack Choice — London Expansion</h1>
+  <p>Territory Analysis &amp; Opportunity Map &bull; March 2026</p>
+</div>
+
+<div class="container">
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="number">20</div>
+      <div class="label">Territories Evaluated</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">5</div>
+      <div class="label">Tier 1 Targets</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">4</div>
+      <div class="label">Confirmed Food Deserts</div>
+    </div>
+    <div class="stat-card">
+      <div class="number">£17k</div>
+      <div class="label">Annual Profit (5-machine cluster)</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Opportunity Map</h2>
+    <div id="map"></div>
+  </div>
+
+  <div class="section">
+    <div class="callout red">
+      <b>Key Insight:</b> Inner London has a corner shop every 200m — vending's "captive audience" value proposition fails.
+      M25 corridor industrial estates are genuine food deserts where workers are stuck for 8-12 hour shifts with no walkable food.
+    </div>
+    <div class="callout green">
+      <b>The Play:</b> Pick ONE estate. Pitch 5-6 sites for free placement. Place 3-5 machines as a cluster.
+      Effective rate: £44/hour at 8 hours/week. Revenue per operator-hour is the north star, not revenue per machine.
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Territory Ranking</h2>
+    <table>
+      <thead>
+        <tr><th>Estate</th><th>Score</th><th>Tier</th><th>Workers</th><th>Food Access</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><b>Park Royal</b><br><small>NW10 / W3, Ealing & Brent</small></td><td style='text-align:center'><b>10</b>/10</td><td style='text-align:center'>1</td><td>36,000-52,000</td><td><span style="background:#dc2626;color:white;padding:2px 8px;border-radius:4px;font-size:12px">DESERT</span></td><td><small>SCOUT VERIFIED. Largest industrial estate in London. 500+ food manufacturers = shift workers. 3 outl</small></td></tr><tr><td><b>DP World London Gateway</b><br><small>Stanford-le-Hope, Thurrock</small></td><td style='text-align:center'><b>10</b>/10</td><td style='text-align:center'>1</td><td>Growing (1,500+)</td><td><span style="background:#dc2626;color:white;padding:2px 8px;border-radius:4px;font-size:12px">DESERT</span></td><td><small>SCOUT VERIFIED. Extremely isolated. 24/7 port ops. No Greggs, no supermarket, no chains. Nearest pro</small></td></tr><tr><td><b>Manor Royal</b><br><small>Crawley, West Sussex</small></td><td style='text-align:center'><b>9</b>/10</td><td style='text-align:center'>1</td><td>30,000+</td><td><span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:4px;font-size:12px">PARTIAL</span></td><td><small>SCOUT VERIFIED. UK largest industrial BID. Gatwick Rd corridor has Subway, Starbucks, M&S. But weste</small></td></tr><tr><td><b>Brimsdown Industrial Estate</b><br><small>Enfield, North London</small></td><td style='text-align:center'><b>9</b>/10</td><td style='text-align:center'>1</td><td>~7,500</td><td><span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:4px;font-size:12px">PARTIAL</span></td><td><small>SCOUT VERIFIED. London 2nd largest estate. Western interior is pure food desert. Green St edge has s</small></td></tr><tr><td><b>Prologis Park West London</b><br><small>West Drayton, Hillingdon</small></td><td style='text-align:center'><b>8</b>/10</td><td style='text-align:center'>2</td><td>500-2,000 (est.)</td><td><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:4px;font-size:12px">NOT SCOUTED</span></td><td><small>Large logistics warehouses with shift workers. Approach individual occupiers.</small></td></tr><tr><td><b>Crossways Business Park</b><br><small>Dartford, Kent</small></td><td style='text-align:center'><b>7</b>/10</td><td style='text-align:center'>1</td><td>1,000+</td><td><span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:4px;font-size:12px">PARTIAL</span></td><td><small>SCOUT VERIFIED. Costa only quick food option. Restaurants serve sit-down meals not shift worker snac</small></td></tr><tr><td><b>Watford Business Park</b><br><small>Watford, Hertfordshire</small></td><td style='text-align:center'><b>7</b>/10</td><td style='text-align:center'>2</td><td>2,000-5,000 (est.)</td><td><span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:4px;font-size:12px">PARTIAL</span></td><td><small>SCOUT VERIFIED. Very thin on-site provision but smaller estate rescued by proximity to residential r</small></td></tr><tr><td><b>London Medway Commercial Park</b><br><small>Strood, Kent</small></td><td style='text-align:center'><b>7</b>/10</td><td style='text-align:center'>2</td><td>Growing</td><td><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:4px;font-size:12px">NOT SCOUTED</span></td><td><small>Goodman-developed. 24/7 distribution operations.</small></td></tr><tr><td><b>SEGRO Greenford Central</b><br><small>Greenford, Ealing</small></td><td style='text-align:center'><b>7</b>/10</td><td style='text-align:center'>2</td><td>Unknown</td><td><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:4px;font-size:12px">NOT SCOUTED</span></td><td><small>Expanding 250,000+ sq ft. Major redevelopment 2027/28.</small></td></tr><tr><td><b>Crayfields Park</b><br><small>Orpington, BR5</small></td><td style='text-align:center'><b>7</b>/10</td><td style='text-align:center'>2</td><td>Several hundred (est.)</td><td><span style="background:#dc2626;color:white;padding:2px 8px;border-radius:4px;font-size:12px">DESERT</span></td><td><small>SCOUT VERIFIED. Confirmed food desert but small scale (22 acres, 14 units). 1-2 machine opportunity,</small></td></tr><tr><td><b>Slough Trading Estate</b><br><small>Slough, Berkshire</small></td><td style='text-align:center'><b>6</b>/10</td><td style='text-align:center'>2</td><td>~13,000</td><td><span style="background:#22c55e;color:white;padding:2px 8px;border-radius:4px;font-size:12px">SERVED</span></td><td><small>SCOUT VERIFIED. Downgraded — adequate food coverage. Workers within 10 min walk of Greggs/Lidl/M&S. </small></td></tr><tr><td><b>Thames Road / Erith-Belvedere Corridor</b><br><small>Erith/Crayford, Kent</small></td><td style='text-align:center'><b>6</b>/10</td><td style='text-align:center'>2</td><td>1,000+ (est.)</td><td><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:4px;font-size:12px">NOT SCOUTED</span></td><td><small>Dense industrial strip. Multiple estates along Thames Road.</small></td></tr><tr><td><b>Beddington Trading Estate</b><br><small>Croydon</small></td><td style='text-align:center'><b>6</b>/10</td><td style='text-align:center'>2</td><td>500+ (est.)</td><td><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:4px;font-size:12px">NOT SCOUTED</span></td><td><small>Workers unlikely to walk to Purley Way during breaks.</small></td></tr><tr><td><b>Beddington Lane Corridor</b><br><small>Croydon, CR0</small></td><td style='text-align:center'><b>6</b>/10</td><td style='text-align:center'>2</td><td>1,000+ (est.)</td><td><span style="background:#f59e0b;color:white;padding:2px 8px;border-radius:4px;font-size:12px">PARTIAL</span></td><td><small>SCOUT VERIFIED. Sub-estates: Prologis Park, SEGRO Park Croydon, Beddington TE, Silverwing. Major log</small></td></tr><tr><td><b>Kimpton Industrial Estate</b><br><small>Sutton, SM3</small></td><td style='text-align:center'><b>6</b>/10</td><td style='text-align:center'>2</td><td>Unknown</td><td><span style="background:#dc2626;color:white;padding:2px 8px;border-radius:4px;font-size:12px">DESERT</span></td><td><small>SCOUT VERIFIED. Food desert confirmed but worker count unknown. Sub-estates: iO Centre (20 units), K</small></td></tr><tr><td><b>Stockley Park</b><br><small>Uxbridge, Hillingdon</small></td><td style='text-align:center'><b>5</b>/10</td><td style='text-align:center'>3</td><td>Several thousand</td><td><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:4px;font-size:12px">NOT SCOUTED</span></td><td><small>Premium campus — likely has catering. Opportunity in buildings without canteens. Requires healthy/pr</small></td></tr><tr><td><b>Croxley Park</b><br><small>Watford, Hertfordshire</small></td><td style='text-align:center'><b>5</b>/10</td><td style='text-align:center'>3</td><td>2,400+</td><td><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:4px;font-size:12px">NOT SCOUTED</span></td><td><small>Managed campus. Check what on-site catering exists.</small></td></tr><tr><td><b>Charlton Riverside</b><br><small>Greenwich, SE7/SE18</small></td><td style='text-align:center'><b>5</b>/10</td><td style='text-align:center'>3</td><td>Unknown</td><td><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:4px;font-size:12px">NOT SCOUTED</span></td><td><small>Not scouted. 400 businesses but regeneration risk — Westminster Industrial Estate converting to 450 </small></td></tr><tr><td><b>Purley Way Corridor</b><br><small>Croydon/Waddon, CR0</small></td><td style='text-align:center'><b>5</b>/10</td><td style='text-align:center'>3</td><td>Unknown</td><td><span style="background:#6b7280;color:white;padding:2px 8px;border-radius:4px;font-size:12px">NOT SCOUTED</span></td><td><small>Not density-scouted separately. Adjacent retail parks reduce food isolation. Target specific industr</small></td></tr><tr><td><b>Willow Lane Trading Estate</b><br><small>Mitcham, CR4</small></td><td style='text-align:center'><b>4</b>/10</td><td style='text-align:center'>3</td><td>2,500+</td><td><span style="background:#22c55e;color:white;padding:2px 8px;border-radius:4px;font-size:12px">SERVED</span></td><td><small>SCOUT VERIFIED. Has own BID (willowlane.org.uk). Decent worker count but food access too good for ve</small></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Strategy Summary</h2>
+    <div class="strategy">
+      <ul>
+        <li><b>Target M25 corridor, not inner London.</b> Corner shops every 200m kill the captive audience assumption in zones 1-3. Industrial estates are genuine food deserts.</li>
+        <li><b>Cluster machines on single estates.</b> 5 clustered machines = £44/hr effective rate vs 1 scattered machine at £15-25/hr. The 2nd machine in a cluster is almost free to service.</li>
+        <li><b>Free placement over site rent.</b> Breakeven drops from 16 vends/day to 4 vends/day. Always pitch free placement first.</li>
+        <li><b>Hybrid format.</b> Vending machines for public/untrusted sites. Micro-markets (honesty shops) for closed office/warehouse populations. Match format to trust level.</li>
+        <li><b>Revenue per operator-hour is the metric.</b> A machine doing £500/week is poor if it takes 4 hours including the drive. Track time per site, not just revenue per machine.</li>
+        <li><b>Product mix: stock Monster not Red Bull.</b> Red Bull = 30% net margin. Monster = 59% margin. Same category, same customer, double the profit.</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  The Snack Choice &bull; Ruben &amp; Romell &bull; Data: Google Places API, Companies House, supplier websites &bull; Generated March 2026
+</div>
+
+<script>
+var map = L.map('map').setView([51.45, -0.05], 10);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 18,
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+  L.circleMarker([51.527, -0.263], {radius: 18, fillColor: "#22c55e", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>Park Royal</b><br>Score: 10/10 | Tier 1 — Prime Target<br>Workers: 36,000-52,000<br>Food: FOOD DESERT. 12 outlets for 52,000 workers (1:4,333). Deep interior has 3 outlet");
+  L.circleMarker([51.502, 0.478], {radius: 18, fillColor: "#22c55e", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>DP World London Gateway</b><br>Score: 10/10 | Tier 1 — Prime Target<br>Workers: Growing (1,500+)<br>Food: FOOD DESERT. 3 outlets on 1,500 acres. 1 warehouse cafe, 1 bistro, 1 Esso. Stanf");
+  L.circleMarker([51.13, -0.183], {radius: 17, fillColor: "#22c55e", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>Manor Royal</b><br>Score: 9/10 | Tier 1 — Prime Target<br>Workers: 30,000+<br>Food: PARTIAL desert. 16 outlets for 30,000 workers (1:1,875). 3 are snack vans. Gatwi");
+  L.circleMarker([51.66, -0.032], {radius: 17, fillColor: "#22c55e", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>Brimsdown Industrial Estate</b><br>Score: 9/10 | Tier 1 — Prime Target<br>Workers: ~7,500<br>Food: PARTIAL desert. 7 outlets for 7,500 workers (1:1,071). Western half (Lockfield A");
+  L.circleMarker([51.495, -0.48], {radius: 16, fillColor: "#f59e0b", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>Prologis Park West London</b><br>Score: 8/10 | Tier 2 — Secondary<br>Workers: 500-2,000 (est.)<br>Food: Zero on-site. 15 min walk to West Drayton station.");
+  L.circleMarker([51.44, 0.235], {radius: 15, fillColor: "#22c55e", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>Crossways Business Park</b><br>Score: 7/10 | Tier 1 — Prime Target<br>Workers: 1,000+<br>Food: PARTIAL desert. 3 outlets in park (Costa + 2 restaurants). No grab-and-go beyond");
+  L.circleMarker([51.665, -0.4], {radius: 15, fillColor: "#f59e0b", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>Watford Business Park</b><br>Score: 7/10 | Tier 2 — Secondary<br>Workers: 2,000-5,000 (est.)<br>Food: PARTIAL desert on-site. 2 outlets (Greggs + Seven Seeded). Whippendell Rd shops ");
+  L.circleMarker([51.38, 0.48], {radius: 15, fillColor: "#f59e0b", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>London Medway Commercial Park</b><br>Score: 7/10 | Tier 2 — Secondary<br>Workers: Growing<br>Food: Limited on-site.");
+  L.circleMarker([51.53, -0.33], {radius: 15, fillColor: "#f59e0b", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>SEGRO Greenford Central</b><br>Score: 7/10 | Tier 2 — Secondary<br>Workers: Unknown<br>Food: Some high street nearby. Estate itself is industrial.");
+  L.circleMarker([51.385, 0.105], {radius: 15, fillColor: "#f59e0b", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>Crayfields Park</b><br>Score: 7/10 | Tier 2 — Secondary<br>Workers: Several hundred (est.)<br>Food: SCOUT: FOOD DESERT. 0 outlets within 800m. Nearest Londis 1km+. Nugent Retail Pa");
+  L.circleMarker([51.51, -0.605], {radius: 14, fillColor: "#f59e0b", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>Slough Trading Estate</b><br>Score: 6/10 | Tier 2 — Secondary<br>Workers: ~13,000<br>Food: NOT a food desert. 20 outlets inc Lidl, Iceland, 3 Greggs. Bordered by residenti");
+  L.circleMarker([51.48, 0.16], {radius: 14, fillColor: "#f59e0b", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>Thames Road / Erith-Belvedere Corridor</b><br>Score: 6/10 | Tier 2 — Secondary<br>Workers: 1,000+ (est.)<br>Food: Limited. Scattered convenience in residential areas.");
+  L.circleMarker([51.37, -0.14], {radius: 14, fillColor: "#f59e0b", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>Beddington Trading Estate</b><br>Score: 6/10 | Tier 2 — Secondary<br>Workers: 500+ (est.)<br>Food: Purley Way retail 0.5 miles but not walkable (industrial roads).");
+  L.circleMarker([51.373, -0.14], {radius: 14, fillColor: "#f59e0b", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>Beddington Lane Corridor</b><br>Score: 6/10 | Tier 2 — Secondary<br>Workers: 1,000+ (est.)<br>Food: SCOUT: PARTIAL desert. Deep Beddington Lane has 1 cafe at 400m, nothing else. Pu");
+  L.circleMarker([51.365, -0.19], {radius: 14, fillColor: "#f59e0b", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>Kimpton Industrial Estate</b><br>Score: 6/10 | Tier 2 — Secondary<br>Workers: Unknown<br>Food: SCOUT: FOOD DESERT at 400m. 2 outlets within 800m (both cafes 600m+). No conveni");
+  L.circleMarker([51.505, -0.46], {radius: 13, fillColor: "#9ca3af", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>Stockley Park</b><br>Score: 5/10 | Tier 3 — Monitor<br>Workers: Several thousand<br>Food: On-park amenities at The Square. Premium managed campus.");
+  L.circleMarker([51.66, -0.43], {radius: 13, fillColor: "#9ca3af", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>Croxley Park</b><br>Score: 5/10 | Tier 3 — Monitor<br>Workers: 2,400+<br>Food: Not walkable to town. Shuttle bus to Watford Junction.");
+  L.circleMarker([51.488, 0.04], {radius: 13, fillColor: "#9ca3af", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>Charlton Riverside</b><br>Score: 5/10 | Tier 3 — Monitor<br>Workers: Unknown<br>Food: Mixed — IKEA and Sainsburys now present but pockets remain industrial.");
+  L.circleMarker([51.37, -0.12], {radius: 13, fillColor: "#9ca3af", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>Purley Way Corridor</b><br>Score: 5/10 | Tier 3 — Monitor<br>Workers: Unknown<br>Food: MODERATE — retail parks (IKEA, Costco) along the corridor provide food access. I");
+  L.circleMarker([51.4, -0.17], {radius: 12, fillColor: "#9ca3af", color: "#333", weight: 1, fillOpacity: 0.85}).addTo(map).bindPopup("<b>Willow Lane Trading Estate</b><br>Score: 4/10 | Tier 3 — Monitor<br>Workers: 2,500+<br>Food: SCOUT: NOT a desert. 17 outlets within 800m. Tesco Express 254m. Mitcham town ne");
+
+var legend = L.control({position: 'bottomright'});
+legend.onAdd = function(map) {
+  var div = L.DomUtil.create('div', 'legend');
+  div.innerHTML = '<b>Territory Tiers</b><br>' +
+    '<div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div>Tier 1 — Prime Target</div>' +
+    '<div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Tier 2 — Secondary</div>' +
+    '<div class="legend-item"><div class="legend-dot" style="background:#9ca3af"></div>Tier 3 — Monitor</div>' +
+    '<br><small>Marker size = vending score</small>';
+  return div;
+};
+legend.addTo(map);
+</script>
+
+</body>
+</html>
