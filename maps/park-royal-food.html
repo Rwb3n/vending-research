@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scout Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+  #map { width: 100%; height: 100vh; }
+  .info-box {
+    position: absolute; top: 10px; right: 10px; z-index: 1000;
+    background: white; padding: 12px 16px; border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2); max-width: 300px;
+    font-size: 14px; line-height: 1.5;
+  }
+  .info-box h3 { margin: 0 0 8px 0; font-size: 15px; }
+  .info-box .stat { color: #555; }
+  .popup-content { font-size: 13px; line-height: 1.4; }
+  .popup-content .name { font-weight: bold; margin-bottom: 4px; }
+  .popup-content .detail { color: #555; }
+  .popup-content a { color: #0066cc; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="info-box">
+  <h3>cafe OR sandwich shop in Park Royal, London NW10</h3>
+  <div class="stat">51 places</div>
+</div>
+<script>
+var places = [{"name": "Subway", "address": "65 Park Royal, London NW10 7JJ, UK", "lat": 51.5295254, "lng": -0.2681632, "rating": 3.7, "user_ratings_total": 198, "phone": "+44 20 8961 5859", "website": "https://restaurants.subway.com/united-kingdom/en/london/65-park-royal?utm_source=yxt-goog&amp;utm_medium=local&amp;utm_term=acq&amp;utm_content=40466&amp;utm_campaign=evergreen-2020&amp;y_source=1_MTQ5MjU4MjktNzE1LWxvY2F0aW9uLndlYnNpdGU%3D"}, {"name": "Wish Lounge", "address": "34-38 Steele Rd, London NW10 7AS, UK", "lat": 51.5345729, "lng": -0.2643254, "rating": 3.5, "user_ratings_total": 216, "phone": "+44 7518 483677", "website": ""}, {"name": "Patisserie Land Ltd - Best Sweet &amp; Cake Shop", "address": "28 Park Royal Rd, London NW10 7JW, UK", "lat": 51.5268625, "lng": -0.2671935, "rating": 4.6, "user_ratings_total": 72, "phone": "+44 20 8152 4989", "website": ""}, {"name": "Hamadia Restaurant and Sweet \u0645\u0637\u0639\u0645 \u0648\u062d\u0644\u0648\u064a\u0627\u062a \u0627\u0644\u062d\u0645\u064a\u062f\u064a\u0629", "address": "Unit 6, 26-28 Standard Rd, London NW10 6EU, UK", "lat": 51.5286261, "lng": -0.26309679999999996, "rating": 4.7, "user_ratings_total": 428, "phone": "+44 7497 127517", "website": "https://hamadiarestaurant.com/"}, {"name": "Yolo B", "address": "Unit 307, 1-3 Britannia Way, London NW10 7PR, UK", "lat": 51.528047199999996, "lng": -0.272483, "rating": 5.0, "user_ratings_total": 4, "phone": "+44 7502 377137", "website": "https://yolobwafflesandburgers.com/"}, {"name": "Spice Shack", "address": "63 Park Royal Rd, London NW10 7JJ, UK", "lat": 51.5294636, "lng": -0.26815200000000006, "rating": 4.3, "user_ratings_total": 505, "phone": "+44 20 8961 3636", "website": "http://spiceshack.co.uk/"}, {"name": "Albeit Alarabi", "address": "26 Chase Rd, London NW10 6QN, UK", "lat": 51.5272268, "lng": -0.2596831, "rating": 4.8, "user_ratings_total": 78, "phone": "+44 20 8965 3805", "website": ""}, {"name": "Beit el Zaytoun", "address": "15-17 Barretts Green Rd, London NW10 7AE, UK", "lat": 51.534310299999994, "lng": -0.2616636, "rating": 4.2, "user_ratings_total": 5293, "phone": "+44 20 8961 1166", "website": "http://www.beitelzaytoun.com/"}, {"name": "Kamil Bakery", "address": "7 Standard Rd, London NW10 6EX, UK", "lat": 51.5285892, "lng": -0.2609721, "rating": 4.6, "user_ratings_total": 660, "phone": "+44 20 8537 1218", "website": ""}, {"name": "Levant book Cafe", "address": "26-28 Standard Rd, London NW10 6EU, UK", "lat": 51.5284908, "lng": -0.262909, "rating": 4.5, "user_ratings_total": 769, "phone": "+44 20 8838 0223", "website": "https://www.levantlondon.com/"}, {"name": "Kusina- Park Royal", "address": "Unit 36, 17 Cumberland Ave, London NW10 7RT, UK", "lat": 51.5292551, "lng": -0.27769479999999996, "rating": 4.8, "user_ratings_total": 218, "phone": "+44 7495 041505", "website": "http://www.lorenzokusina.com/"}, {"name": "Mediterranean Lounge \u0628\u064a\u062a \u0634\u0631\u0642\u064a", "address": "65 Minerva Rd, London NW10 6HJ, UK", "lat": 51.5282577, "lng": -0.2670823, "rating": 3.3, "user_ratings_total": 7, "phone": "+44 20 8090 0498", "website": "https://mediterraneanlounge.co.uk/home/"}, {"name": "Greencore Park Royal", "address": "Unit 4c Willen Field Rd, London NW10 7AQ, UK", "lat": 51.535117299999996, "lng": -0.2695345, "rating": 3.6, "user_ratings_total": 77, "phone": "+44 20 8956 6000", "website": "https://www.greencore.com/park-royal/"}, {"name": "The Noodle", "address": "Kitchen K1, Unit 35 Cumberland Business Pk, Cumberland Ave, London NW10 7RT, UK", "lat": 51.5292543, "lng": -0.2777444, "rating": 4.6, "user_ratings_total": 62, "phone": "+44 7438 011606", "website": "http://www.thnoodle.co.uk/"}, {"name": "Al Shorfa", "address": "Centre House, St Leonard&#x27;s Rd, London NW10 6ST, UK", "lat": 51.526643299999996, "lng": -0.25801969999999996, "rating": 4.3, "user_ratings_total": 318, "phone": "+44 20 3876 6935", "website": "http://alshorfa.co.uk/"}, {"name": "Shepherd&#x27;s Sandwich Bar", "address": "30 Scrubs Ln, London NW10 6RA, UK", "lat": 51.529668799999996, "lng": -0.2372172, "rating": 5.0, "user_ratings_total": 31, "phone": "+44 7587 761179", "website": ""}, {"name": "Maroush Park Royal", "address": "5 McNicol Dr, London NW10 7AJ, UK", "lat": 51.534125599999996, "lng": -0.26722209999999996, "rating": 4.3, "user_ratings_total": 1322, "phone": "+44 20 4553 6610", "website": "http://www.maroush.com/"}, {"name": "Al-Jabal Bakery", "address": "F01, Acton Business Centre, School Rd, London NW10 6TD, UK", "lat": 51.5257523, "lng": -0.257857, "rating": 4.8, "user_ratings_total": 97, "phone": "+44 20 8961 3729", "website": "http://www.aljabalbakery.com/"}, {"name": "The Terrace Bakery - Lebanese Kitchen", "address": "32 Chase Rd, North Acton, London NW10 6QN, UK", "lat": 51.526948999999995, "lng": -0.25989419999999996, "rating": 4.3, "user_ratings_total": 855, "phone": "+44 20 8961 4619", "website": "https://www.theterracerestaurants.com/"}, {"name": "Elite Restaurant", "address": "860a Coronation Rd, London NW10 7PS, UK", "lat": 51.5279464, "lng": -0.2773599, "rating": 3.3, "user_ratings_total": 56, "phone": "+44 7823 892216", "website": ""}, {"name": "Saj Alkaria", "address": "F03, Acton Business Centre, School Rd, London NW10 6TD, UK", "lat": 51.5259206, "lng": -0.2583212, "rating": 3.0, "user_ratings_total": 6, "phone": "", "website": ""}, {"name": "Cafe Ola", "address": "34 Chase Rd, London NW10 6QN, UK", "lat": 51.526779, "lng": -0.2598045, "rating": 4.4, "user_ratings_total": 93, "phone": "+44 20 8965 5333", "website": "https://ymaps.top/cafe-ola"}, {"name": "One Stop Cafe", "address": "38A Standard Rd, London NW10 6EU, UK", "lat": 51.528222799999995, "lng": -0.26378, "rating": 3.1, "user_ratings_total": 7, "phone": "+44 20 8259 4373", "website": ""}, {"name": "Park Cafe", "address": "212 Acton Ln, London NW10 7NH, UK", "lat": 51.5326404, "lng": -0.26346179999999997, "rating": 4.2, "user_ratings_total": 169, "phone": "+44 20 8961 8660", "website": ""}, {"name": "Sweet Fellas", "address": "Unit b21b 7, 11 Minerva Rd, London NW10 6HJ, UK", "lat": 51.529467999999994, "lng": -0.26138800000000006, "rating": 3.4, "user_ratings_total": 5, "phone": "", "website": ""}, {"name": "Blaze N shakes", "address": "blaze N shakes, 7-11 Minerva Rd, London NW10 6HJ, UK", "lat": 51.5292234, "lng": -0.2616739, "rating": 4.6, "user_ratings_total": 10, "phone": "+44 20 3576 5103", "website": ""}, {"name": "Caff\u00e8 Concerto Cake Studio", "address": "unit 2 3, Genesis Business Park, 5 Rainsford Rd, London NW10 7RG, UK", "lat": 51.53367730000001, "lng": -0.2777629, "rating": 4.0, "user_ratings_total": 46, "phone": "+44 20 7494 6837", "website": "http://www.caffeconcerto.co.uk/"}, {"name": "Flames Express", "address": "26-28 Standard Rd, London NW10 6EU, UK", "lat": 51.528451399999994, "lng": -0.2629041, "rating": 4.8, "user_ratings_total": 174, "phone": "+44 7767 770884", "website": ""}, {"name": "Ground Up", "address": "17-19 Sunbeam Rd, London NW10 6JP, UK", "lat": 51.5260174, "lng": -0.2636603, "rating": 5.0, "user_ratings_total": 4, "phone": "+44 7730 759104", "website": ""}, {"name": "Cafe &amp; Restaurant Mars", "address": "11 Hanger Grn, London W5 3EL, UK", "lat": 51.5265698, "lng": -0.2849158, "rating": 4.7, "user_ratings_total": 70, "phone": "+44 7899 720135", "website": ""}, {"name": "Patisserie Rayan", "address": "55 - 57 Minerva Rd, London NW10 6HJ, UK", "lat": 51.5284974, "lng": -0.2659495, "rating": 4.4, "user_ratings_total": 1149, "phone": "", "website": "http://www.rayanlondon.com/"}, {"name": "Farran Caf\u00e9", "address": "Acton Business Centre, School Rd, London NW10 6TD, UK", "lat": 51.5257495, "lng": -0.25889239999999997, "rating": 4.9, "user_ratings_total": 46, "phone": "+44 20 8965 7070", "website": ""}, {"name": "Al Enam", "address": "Acton Business Centre, School Rd, London NW10 6TD, UK", "lat": 51.5261595, "lng": -0.2582625, "rating": 4.3, "user_ratings_total": 1603, "phone": "+44 20 8961 8941", "website": "http://alenam.co.uk/"}, {"name": "Sweetland London", "address": "34A Standard Rd, London NW10 6EU, UK", "lat": 51.5283954, "lng": -0.2632347, "rating": 4.5, "user_ratings_total": 534, "phone": "+44 20 8838 2628", "website": "http://sweetlandlondon.com/"}, {"name": "Patisserie Patchi", "address": "28 Abbey Rd, London NW10 7SB, UK", "lat": 51.5326775, "lng": -0.2750395, "rating": 4.1, "user_ratings_total": 3325, "phone": "+44 20 8961 3443", "website": "http://www.patchi.co.uk/"}, {"name": "Your sweets", "address": "34F School Rd, London NW10 6TD, UK", "lat": 51.5261997, "lng": -0.2584007, "rating": 4.6, "user_ratings_total": 182, "phone": "+44 20 8965 1222", "website": "https://yoursweets.co.uk/"}, {"name": "Abbey Point Cafe", "address": "302 Twyford Abbey Rd, London NW10 7DD, UK", "lat": 51.534950699999996, "lng": -0.2752711, "rating": 5.0, "user_ratings_total": 17, "phone": "+44 20 8965 6040", "website": "https://www.abbeypointhotel.com/cafe"}, {"name": "Mood Lounge", "address": "21 Barretts Green Rd, London NW10 7AE, UK", "lat": 51.533873400000004, "lng": -0.2632065, "rating": 4.3, "user_ratings_total": 169, "phone": "+44 20 8838 0886", "website": "https://linktr.ee/moodloungeparkroyal"}, {"name": "Crown Caf\u00e9", "address": "Barretts Green Rd, London NW10 7AD, UK", "lat": 51.533967499999996, "lng": -0.2621825, "rating": 4.4, "user_ratings_total": 101, "phone": "", "website": ""}, {"name": "Goodies Supermarket", "address": "39-43 Park Royal Rd, London NW10 7LQ, UK", "lat": 51.5276277, "lng": -0.2669709, "rating": 4.3, "user_ratings_total": 519, "phone": "+44 20 3337 6019", "website": "https://goodiessupermarket.co.uk/"}, {"name": "Cafe Royal", "address": "20 Abbey Rd, London NW10 7RE, UK", "lat": 51.52984300000001, "lng": -0.269771, "rating": 4.4, "user_ratings_total": 385, "phone": "+44 20 8965 4960", "website": "http://www.cafe-royal.co.uk/"}, {"name": "Little Beirut", "address": "65 Minerva Rd, London NW10 6HJ, UK", "lat": 51.528342599999995, "lng": -0.2673525, "rating": 4.5, "user_ratings_total": 193, "phone": "+44 20 8090 0498", "website": ""}, {"name": "Ala Kayfak Lebanese Grill", "address": "Acton Business Centre, School Rd, London NW10 6TD, UK", "lat": 51.5259206, "lng": -0.2583212, "rating": 4.7, "user_ratings_total": 53, "phone": "+44 7885 717070", "website": ""}, {"name": "Nirvana Cafe", "address": "Unit B3, 7-11 Minerva Rd, London NW10 6HJ, UK", "lat": 51.528651599999996, "lng": -0.2611381, "rating": 4.9, "user_ratings_total": 64, "phone": "+44 7960 875748", "website": "https://www.bronek.co.uk/"}, {"name": "Aroza Lounge", "address": "19 Abbey Rd, London NW10 7RB, UK", "lat": 51.5300191, "lng": -0.26917369999999996, "rating": 4.7, "user_ratings_total": 166, "phone": "+44 7778 862680", "website": "http://linktr.ee/arozalounge"}, {"name": "Sushi Daily Park Royal", "address": "2-20 Western Rd, London NW10 7LW, UK", "lat": 51.528651100000005, "lng": -0.26985719999999996, "rating": 4.0, "user_ratings_total": 7, "phone": "+44 20 8951 9000", "website": "http://www.sushidaily.co.uk/?utm_source=google&amp;utm_medium=local&amp;utm_content=UK&amp;utm_term=UK0001"}, {"name": "Awafi Foods", "address": "Unit 23 Cumberland Ave, London NW10 7RT, UK", "lat": 51.530210999999994, "lng": -0.277499, "rating": 4.7, "user_ratings_total": 325, "phone": "+44 20 8961 7277", "website": "http://www.awafifoods.co.uk/"}, {"name": "Bodrum Lounge", "address": "857a Coronation Rd, London NW10 7PP, UK", "lat": 51.529688799999995, "lng": -0.2699082, "rating": 3.5, "user_ratings_total": 45, "phone": "", "website": ""}, {"name": "SHAMSIN BAKERY", "address": "35 Minerva Rd, London NW10 6HJ, UK", "lat": 51.5292189, "lng": -0.26350039999999997, "rating": 4.6, "user_ratings_total": 330, "phone": "+44 20 8838 5000", "website": "https://shamsinbakery.com/"}, {"name": "Roundwood Lodge Cafe", "address": "Roundwood Park, Longstone Ave, London NW10 3SH, UK", "lat": 51.5408215, "lng": -0.2400089, "rating": 4.5, "user_ratings_total": 332, "phone": "+44 20 8951 9444", "website": "https://jsscateringltd.co.uk/"}, {"name": "Muhra Cafe &amp; Restaurant (The Kitchen)", "address": "Station cafe coronation, Coronation Rd, London NW10 7QJ, UK", "lat": 51.528051, "lng": -0.278313, "rating": 4.9, "user_ratings_total": 44, "phone": "+44 7943 994095", "website": ""}];
+var routePolyline = null;
+var routeInfo = null;
+
+var map = L.map('map');
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors',
+  maxZoom: 19
+}).addTo(map);
+
+// Decode Google polyline
+function decodePolyline(encoded) {
+  var points = [];
+  var index = 0, len = encoded.length;
+  var lat = 0, lng = 0;
+  while (index < len) {
+    var b, shift = 0, result = 0;
+    do { b = encoded.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+    var dlat = ((result & 1) ? ~(result >> 1) : (result >> 1));
+    lat += dlat;
+    shift = 0; result = 0;
+    do { b = encoded.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+    var dlng = ((result & 1) ? ~(result >> 1) : (result >> 1));
+    lng += dlng;
+    points.push([lat / 1e5, lng / 1e5]);
+  }
+  return points;
+}
+
+var bounds = L.latLngBounds();
+
+places.forEach(function(p) {
+  var popupHtml = '<div class="popup-content">';
+  popupHtml += '<div class="name">' + p.name + '</div>';
+  if (p.address) popupHtml += '<div class="detail">' + p.address + '</div>';
+  if (p.rating) popupHtml += '<div class="detail">Rating: ' + p.rating + (p.user_ratings_total ? ' (' + p.user_ratings_total + ' reviews)' : '') + '</div>';
+  if (p.phone) popupHtml += '<div class="detail">Phone: ' + p.phone + '</div>';
+  if (p.website) popupHtml += '<div class="detail"><a href="' + p.website + '" target="_blank">Website</a></div>';
+  popupHtml += '</div>';
+  var marker = L.marker([p.lat, p.lng]).addTo(map).bindPopup(popupHtml);
+  bounds.extend([p.lat, p.lng]);
+});
+
+if (routePolyline) {
+  var routePoints = decodePolyline(routePolyline);
+  L.polyline(routePoints, {color: '#2196F3', weight: 5, opacity: 0.8}).addTo(map);
+  routePoints.forEach(function(p) { bounds.extend(p); });
+}
+
+if (routeInfo && routeInfo.origin) {
+  L.circleMarker([routeInfo.origin.lat, routeInfo.origin.lng], {
+    radius: 10, color: '#4CAF50', fillColor: '#4CAF50', fillOpacity: 0.8
+  }).addTo(map).bindPopup('<b>Start</b><br>' + (routeInfo.origin.address || ''));
+  bounds.extend([routeInfo.origin.lat, routeInfo.origin.lng]);
+}
+
+if (bounds.isValid()) {
+  map.fitBounds(bounds, {padding: [40, 40]});
+} else {
+  map.setView([40.7128, -74.0060], 13);
+}
+</script>
+</body>
+</html>

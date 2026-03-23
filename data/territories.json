@@ -9,10 +9,10 @@
     "businesses": "1,700+",
     "types": "Food manufacturing, logistics, light industrial, creative",
     "anchor_tenants": "Diageo, Coca-Cola, Sky, Disney, British Airways",
-    "food_access": "Dispersed, many areas with none. Mobile catering vans.",
+    "food_access": "FOOD DESERT. 12 outlets for 52,000 workers (1:4,333). Deep interior has 3 outlets only. Zero food on Minerva Rd, Twyford Abbey area.",
     "vending_score": 10,
     "tier": 1,
-    "notes": "Largest industrial estate in London. 500+ food manufacturers = shift workers. Fragmented ownership = many underserved pockets."
+    "notes": "SCOUT VERIFIED. Largest industrial estate in London. 500+ food manufacturers = shift workers. 3 outlets serve entire interior. Best vending opportunity."
   },
   {
     "name": "Manor Royal",
@@ -24,10 +24,10 @@
     "businesses": "600+",
     "types": "Aviation, manufacturing, logistics, pharma, offices",
     "anchor_tenants": "Virgin Atlantic, Thales, Tesco.com, Nestle, Elekta",
-    "food_access": "Bank Precinct has some. Vast areas are 10+ min walk from food.",
-    "vending_score": 10,
+    "food_access": "PARTIAL desert. 16 outlets for 30,000 workers (1:1,875). 3 are snack vans. Gatwick Rd strip has coverage, western half has nothing.",
+    "vending_score": 9,
     "tier": 1,
-    "notes": "UK's largest industrial BID. Organised management body to approach. £1.7bn GVA."
+    "notes": "SCOUT VERIFIED. UK largest industrial BID. Gatwick Rd corridor has Subway, Starbucks, M&S. But western/southern areas 15-20 min from food."
   },
   {
     "name": "Slough Trading Estate",
@@ -39,10 +39,10 @@
     "businesses": "~350",
     "types": "Logistics, offices, light manufacturing, R&D, data centres",
     "anchor_tenants": "Mars, Dulux (AkzoNobel)",
-    "food_access": "Some on-estate catering. Peripheral areas remote from shops.",
-    "vending_score": 9,
-    "tier": 1,
-    "notes": "SEGRO-owned. 435 units. 24/7 warehouse operations."
+    "food_access": "NOT a food desert. 20 outlets inc Lidl, Iceland, 3 Greggs. Bordered by residential retail on Bath Rd + Farnham Rd.",
+    "vending_score": 6,
+    "tier": 2,
+    "notes": "SCOUT VERIFIED. Downgraded \u2014 adequate food coverage. Workers within 10 min walk of Greggs/Lidl/M&S. Vending still viable in deep interior but less urgent."
   },
   {
     "name": "Brimsdown Industrial Estate",
@@ -54,10 +54,10 @@
     "businesses": "285",
     "types": "Manufacturing, food production, logistics, chemicals",
     "anchor_tenants": "Johnson Matthey, Warburtons, Greggs, DHL",
-    "food_access": "Very poorly served. Enfield town centre 2 miles away.",
+    "food_access": "PARTIAL desert. 7 outlets for 7,500 workers (1:1,071). Western half (Lockfield Ave, Brancroft Way) has zero food. 1 Greggs on Millmarsh Ln.",
     "vending_score": 9,
     "tier": 1,
-    "notes": "London's 2nd largest industrial estate. £721m GVA. Multiple sub-estates."
+    "notes": "SCOUT VERIFIED. London 2nd largest estate. Western interior is pure food desert. Green St edge has some options but long walk from interior."
   },
   {
     "name": "DP World London Gateway",
@@ -69,10 +69,10 @@
     "businesses": "17 facilities",
     "types": "Port logistics, distribution, sorting/fulfilment",
     "anchor_tenants": "UPS, DHL, Curry's",
-    "food_access": "Extremely isolated. Stanford-le-Hope 2 miles.",
-    "vending_score": 8,
+    "food_access": "FOOD DESERT. 3 outlets on 1,500 acres. 1 warehouse cafe, 1 bistro, 1 Esso. Stanford-le-Hope 3 miles away. Car-dependent.",
+    "vending_score": 10,
     "tier": 1,
-    "notes": "24/7 port operations. 9M sq ft logistics park, 50% built. New 10-year expansion."
+    "notes": "SCOUT VERIFIED. Extremely isolated. 24/7 port ops. No Greggs, no supermarket, no chains. Nearest proper shops 3 miles. Growing workforce."
   },
   {
     "name": "Crossways Business Park",
@@ -84,10 +84,10 @@
     "businesses": "45+",
     "types": "Logistics, distribution, data centres, food distribution",
     "anchor_tenants": "John Lewis, Kuehne+Nagel, ASDA, DHL, Yodel",
-    "food_access": "Dartford town centre 3 miles. Limited on-site.",
-    "vending_score": 8,
+    "food_access": "PARTIAL desert. 3 outlets in park (Costa + 2 restaurants). No grab-and-go beyond Costa. Stone village shops 10-15 min walk.",
+    "vending_score": 7,
     "tier": 1,
-    "notes": "3M+ sq ft. Phase 2 adding 318,000 sq ft. 24/7 shift patterns."
+    "notes": "SCOUT VERIFIED. Costa only quick food option. Restaurants serve sit-down meals not shift worker snacks. Stone village walkable but slow."
   },
   {
     "name": "Prologis Park West London",
@@ -114,10 +114,10 @@
     "businesses": "100+",
     "types": "Mixed industrial/office",
     "anchor_tenants": "Corona Energy, Kodak",
-    "food_access": "Some periphery retail. Estate itself is industrial.",
+    "food_access": "PARTIAL desert on-site. 2 outlets (Greggs + Seven Seeded). Whippendell Rd shops ~10 min walk with Tesco Express, SPAR.",
     "vending_score": 7,
     "tier": 2,
-    "notes": "New £25M development. Growing. Good mix of logistics and office."
+    "notes": "SCOUT VERIFIED. Very thin on-site provision but smaller estate rescued by proximity to residential retail. On-site vending still valuable."
   },
   {
     "name": "London Medway Commercial Park",
@@ -192,7 +192,7 @@
     "food_access": "On-park amenities at The Square. Premium managed campus.",
     "vending_score": 5,
     "tier": 3,
-    "notes": "Premium campus — likely has catering. Opportunity in buildings without canteens. Requires healthy/premium product mix."
+    "notes": "Premium campus \u2014 likely has catering. Opportunity in buildings without canteens. Requires healthy/premium product mix."
   },
   {
     "name": "Croxley Park",
