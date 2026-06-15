@@ -112,6 +112,9 @@ python3 bos/tools/kpi.py compute --latest             # this week's numbers
 python3 bos/tools/route.py plan                        # clustered restock route
 python3 bos/tools/reorder.py                           # purchase order
 python3 bos/tools/policy.py evaluate --decision site-go-nogo --input '{"vending_score":8}' --log
+
+# see the whole weekly loop run end to end (non-destructive sandbox):
+python3 bos/demo/week_in_the_life.py
 ```
 
 **Principle — evidence or spike.** Operating assumptions are listed in

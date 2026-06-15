@@ -21,7 +21,7 @@ TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 BOS_DIR = os.path.dirname(TOOLS_DIR)
 REPO_DIR = os.path.dirname(BOS_DIR)
 CONFIG_DIR = os.path.join(BOS_DIR, "config")
-STATE_DIR = os.path.join(BOS_DIR, "state")
+STATE_DIR = os.environ.get("BOS_STATE_DIR") or os.path.join(BOS_DIR, "state")
 SCHEMA_DIR = os.path.join(BOS_DIR, "schema")
 DATA_DIR = os.path.join(REPO_DIR, "data")
 
@@ -52,9 +52,17 @@ def load_jsonl(path):
 
 
 def append_jsonl(path, record):
-    """Append one record to a JSONL log (the header must already exist)."""
+    """Append one record to a JSONL log (the header must already exist).
+
+    Tolerates a file whose last line lacks a trailing newline, so records can never
+    be concatenated onto an existing line."""
+    needs_nl = False
+    if os.path.exists(path) and os.path.getsize(path) > 0:
+        with open(path, "rb") as fh:
+            fh.seek(-1, os.SEEK_END)
+            needs_nl = fh.read(1) != b"\n"
     with open(path, "a") as fh:
-        fh.write(json.dumps(record) + "\n")
+        fh.write(("\n" if needs_nl else "") + json.dumps(record) + "\n")
 
 
 # --- safe arithmetic / comparison evaluator (for kpi & policy expressions) ---

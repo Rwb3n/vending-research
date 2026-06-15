@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.join(HERE, "bos", "tools"))
 import common  # noqa: E402
 import kpi as kpi_tool  # noqa: E402
 
-OUTPUT = os.path.join(HERE, "TheSnackChoice_OperatingSystem.xlsx")
+OUTPUT = os.environ.get("BOS_WORKBOOK_OUT") or os.path.join(HERE, "TheSnackChoice_OperatingSystem.xlsx")
 
 HEADER_FILL = PatternFill("solid", fgColor="1F3864")
 HEADER_FONT = Font(color="FFFFFF", bold=True, size=11)
