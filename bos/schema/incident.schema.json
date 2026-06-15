@@ -1,0 +1,25 @@
+{
+  "_meta": {
+    "id": "bos.schema.incident",
+    "purpose": "Contract for one operational incident (fault, theft, stockout, complaint).",
+    "applies_to": "state/incidents.jsonl",
+    "updated": "2026-06-15"
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Incident",
+  "type": "object",
+  "required": ["id", "date", "machine_id", "type", "severity", "status"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {"type": "string", "description": "Unique incident id, e.g. INC-2026-001."},
+    "date": {"type": "string", "format": "date"},
+    "machine_id": {"type": "string"},
+    "type": {"type": "string", "enum": ["fault", "stockout", "theft", "cash_variance", "complaint", "vandalism", "telemetry"]},
+    "severity": {"type": "string", "enum": ["low", "medium", "high"]},
+    "status": {"type": "string", "enum": ["open", "investigating", "resolved"]},
+    "playbook": {"type": "string", "description": "Playbook id followed, e.g. fault-triage."},
+    "description": {"type": "string"},
+    "resolution": {"type": "string"},
+    "revenue_lost_gbp": {"type": "number", "minimum": 0}
+  }
+}

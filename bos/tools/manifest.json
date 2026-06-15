@@ -1,0 +1,68 @@
+{
+  "_meta": {
+    "id": "bos.tools.manifest",
+    "purpose": "Tool registry — the API an agent reads to discover every capability without reading source. Each tool is a deterministic CLI: JSON in (args/stdin), JSON out (stdout).",
+    "convention": "All paths relative to repo root. Tools are pipe-friendly and side-effect-free unless they name an output file.",
+    "updated": "2026-06-15"
+  },
+  "tools": [
+    {
+      "id": "validate",
+      "cmd": "python bos/tools/validate.py [<file>|--all]",
+      "does": "Validate state files against their JSON Schema contracts.",
+      "reads": ["bos/state/*", "bos/schema/*"],
+      "writes": [],
+      "exit": "non-zero on any violation",
+      "when": "Before appending to any state file; inside build.py."
+    },
+    {
+      "id": "kpi",
+      "cmd": "python bos/tools/kpi.py compute [--latest|--week W|--all]",
+      "does": "Compute every KPI for a week, with value + green/amber/red status. The only place operating math happens.",
+      "reads": ["bos/config/kpis.yaml", "bos/state/scorecard.jsonl", "bos/state/machines_state.json"],
+      "writes": [],
+      "when": "Weekly review; monthly gate; any time you need the numbers. Never compute KPIs by hand."
+    },
+    {
+      "id": "policy",
+      "cmd": "python bos/tools/policy.py evaluate --decision <id> --input <json> [--subject S] [--log]",
+      "does": "Evaluate a decision policy (first matching rule wins) and optionally log an auditable decision.",
+      "reads": ["bos/config/policies.yaml"],
+      "writes": ["bos/state/decisions.jsonl (with --log)"],
+      "decisions": ["site-go-nogo", "site-keep-fix-cut", "cash-investigate", "price-change", "product-cut", "machine-buy"],
+      "when": "Any go/no-go, keep/fix/cut, buy/hold, or threshold decision."
+    },
+    {
+      "id": "route",
+      "cmd": "python bos/tools/route.py plan",
+      "does": "Plan a clustered restock route over machines below the fill trigger.",
+      "reads": ["bos/state/machines_state.json", "bos/config/policies.yaml"],
+      "writes": [],
+      "when": "Before a restock run (replenish pipeline)."
+    },
+    {
+      "id": "reorder",
+      "cmd": "python bos/tools/reorder.py [--all]",
+      "does": "Build a purchase order (units + estimated cost by category) to refill due machines.",
+      "reads": ["bos/state/machines_state.json", "bos/config/policies.yaml", "data/products.json"],
+      "writes": [],
+      "when": "Weekly supplier reorder, before a restock run."
+    },
+    {
+      "id": "scorecard",
+      "cmd": "python bos/tools/scorecard.py append --input <json>",
+      "does": "Validate and append one weekly scorecard entry (raw inputs only).",
+      "reads": ["bos/schema/scorecard_entry.schema.json", "bos/state/scorecard.jsonl"],
+      "writes": ["bos/state/scorecard.jsonl"],
+      "when": "Start of the weekly review, to close the prior week."
+    },
+    {
+      "id": "build",
+      "cmd": "python bos/build.py",
+      "does": "Orchestrator: validate all state -> compute latest KPIs -> regenerate workbook + HTML manual.",
+      "reads": ["bos/config/*", "bos/state/*"],
+      "writes": ["TheSnackChoice_OperatingSystem.xlsx", "TheSnackChoice_OS_Manual.html"],
+      "when": "After any change to config or state."
+    }
+  ]
+}

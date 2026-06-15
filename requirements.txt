@@ -1,0 +1,7 @@
+# ---
+# Python dependencies for both tracks: market-research generators and the BOS.
+# Install: pip install -r requirements.txt
+# ---
+openpyxl>=3.1      # Excel workbook generation (both generate.py and generate_bos.py)
+PyYAML>=6.0        # BOS config/* and file headers
+jsonschema>=4.20   # BOS state contracts (bos/schema/*)

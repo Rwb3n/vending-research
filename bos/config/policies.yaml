@@ -1,0 +1,70 @@
+# ---
+# id: bos.config.policies
+# purpose: Deterministic decision rules. tools/policy.py evaluates an input against the
+#          ordered rules of a policy; first matching rule wins. Verdicts are logged to
+#          state/decisions.jsonl with the reasons and the policy id (auditable).
+# consumed_by: [tools/policy.py, generate_bos.py, generate_bos_manual.py]
+# updated: 2026-06-15
+# ---
+_meta:
+  id: bos.config.policies
+
+# Each rule: when (expression over the input fields) -> verdict (+ reason).
+# Rules are evaluated top-down; the first true `when` wins. `default` fires if none match.
+# Operational config (restock trigger) also lives here so route.py reads one source.
+operational:
+  restock_trigger_fill: 0.30   # SPIKE 001 — restock when current_fill < this
+  cluster_routes: true         # A3 — group route stops by site to protect route £/hr
+
+policies:
+  - id: site-go-nogo
+    label: Should we place a machine at this site?
+    inputs: [vending_score]
+    evidence: "EVIDENCED (A6) — territory scoring 1-10, tier cutoffs."
+    rules:
+      - {when: "vending_score >= 8", verdict: "GO",    reason: "Tier-1 score; confirmed/likely food desert."}
+      - {when: "vending_score >= 5", verdict: "WATCH", reason: "Marginal; scout before committing a machine."}
+    default: {verdict: "NO", reason: "Below viability score; workers not captive enough."}
+
+  - id: site-keep-fix-cut
+    label: Keep, fix, or pull a live site?
+    inputs: [rev_per_operator_hour]
+    evidence: "EVIDENCED (A2) — Performance Review bands."
+    rules:
+      - {when: "rev_per_operator_hour >= 30", verdict: "KEEP", reason: "Green band; performing."}
+      - {when: "rev_per_operator_hour >= 15", verdict: "FIX",  reason: "Amber; tune planogram/cadence before deciding."}
+    default: {verdict: "CUT", reason: "Below £15/operator-hr red band; redeploy machine."}
+
+  - id: cash-investigate
+    label: Does cash variance need investigation?
+    inputs: [variance_pct]
+    evidence: "SPIKE 004 — thresholds provisional."
+    rules:
+      - {when: "abs(variance_pct) > 4", verdict: "INVESTIGATE", reason: "Beyond noise floor; check validator/telemetry/theft."}
+      - {when: "abs(variance_pct) > 2", verdict: "WATCH",       reason: "Elevated; recount next collection."}
+    default: {verdict: "OK", reason: "Within expected noise."}
+
+  - id: price-change
+    label: Do prices / supplier terms need action?
+    inputs: [gross_margin_pct]
+    evidence: "EVIDENCED (A5) — margin target >=50%."
+    rules:
+      - {when: "gross_margin_pct < 40", verdict: "RAISE_OR_RENEGOTIATE", reason: "Margin below red band; lift vend price or renegotiate wholesale."}
+      - {when: "gross_margin_pct < 50", verdict: "REVIEW",               reason: "Below target; review priciest-COGS lines."}
+    default: {verdict: "HOLD", reason: "Margin healthy."}
+
+  - id: product-cut
+    label: Cut a slow-moving product line?
+    inputs: [units_per_week, weeks_below]
+    evidence: "SPIKE 005 — thresholds provisional; blocked on per-SKU telemetry."
+    rules:
+      - {when: "units_per_week < 3 and weeks_below >= 4", verdict: "CUT", reason: "Dead slot; swap for a duplicate top-seller."}
+    default: {verdict: "KEEP", reason: "Above cut threshold or insufficient history."}
+
+  - id: machine-buy
+    label: Deploy capital for machine N+1?
+    inputs: [vends_per_day, weeks_sustained, stockout_present]
+    evidence: "SPIKE 006 — thresholds provisional; needs 6-8 weeks live data."
+    rules:
+      - {when: "vends_per_day > 15 and weeks_sustained >= 6 and stockout_present", verdict: "BUY", reason: "Demand-constrained estate; a second machine absorbs unmet demand."}
+    default: {verdict: "HOLD", reason: "Demand not constrained; capital better held."}

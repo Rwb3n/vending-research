@@ -1,0 +1,35 @@
+# ---
+# id: bos.config.workflows
+# purpose: Pipelines bound to a cadence trigger. This is what an agent/operator runs
+#          when a cadence fires. A workflow = when + which pipeline(s) + done-criteria.
+# consumed_by: [generate_bos.py, generate_bos_manual.py]
+# updated: 2026-06-15
+# ---
+_meta:
+  id: bos.config.workflows
+
+workflows:
+  - id: weekly-review
+    cadence: weekly
+    runs: [close-the-week, replenish]
+    done_when: "Scorecard appended, KPIs computed, any red KPI has a logged decision, routes run, cash reconciled, manual regenerated."
+    owner: any        # agent or operator
+
+  - id: daily-watch
+    cadence: daily
+    runs: []          # event-driven, not a fixed pipeline
+    tasks: [triage-fault]
+    done_when: "No open high-severity incident older than 1 day; no machine below trigger without a planned route."
+    owner: any
+
+  - id: monthly-gate
+    cadence: monthly
+    runs: [monthly-performance-gate]
+    done_when: "Every site classified keep/fix/cut; planogram changes logged; spikes with enough data discharged."
+    owner: any
+
+  - id: quarterly-strategy
+    cadence: quarterly
+    runs: [capital-allocation]
+    done_when: "Machine-buy policy evaluated; pipeline re-scouted; ASSUMPTIONS.md reviewed."
+    owner: operator   # capital decisions stay with the human

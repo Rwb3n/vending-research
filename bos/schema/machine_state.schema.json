@@ -1,0 +1,27 @@
+{
+  "_meta": {
+    "id": "bos.schema.machine_state",
+    "purpose": "Contract for one deployed machine's current state.",
+    "applies_to": "state/machines_state.json (array of these)",
+    "updated": "2026-06-15"
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Machine State",
+  "description": "Current snapshot of one deployed machine. Mutable; updated on restock.",
+  "type": "object",
+  "required": ["machine_id", "model", "site", "status", "capacity", "current_fill"],
+  "additionalProperties": false,
+  "properties": {
+    "machine_id": {"type": "string", "pattern": "^M[0-9]{2,}$", "description": "Fleet id, e.g. M01."},
+    "model": {"type": "string", "description": "Must match a name in ../data/machines.json."},
+    "site": {"type": "string", "description": "Site name; matches a lead in ../data/leads.json where possible."},
+    "postcode": {"type": "string"},
+    "status": {"type": "string", "enum": ["live", "install_pending", "fault", "removed"]},
+    "installed": {"type": "string", "format": "date"},
+    "capacity": {"type": "integer", "minimum": 1, "description": "Total item capacity."},
+    "current_fill": {"type": "number", "minimum": 0, "maximum": 1, "description": "Fraction full (0.0-1.0). Drives route.py restock trigger."},
+    "last_restock": {"type": "string", "format": "date"},
+    "planogram": {"type": "string", "description": "Planogram id (product mix) for this machine."},
+    "telemetry": {"type": "string", "enum": ["nayax", "none"], "description": "Cashless/telemetry provider."}
+  }
+}

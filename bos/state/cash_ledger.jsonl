@@ -1,0 +1,5 @@
+{"_meta": {"id": "bos.state.cash_ledger", "purpose": "Per-collection cash reconciliation records. First line is this header — tools skip it. Records validate against schema/cash_ledger_entry.schema.json.", "updated": "2026-06-15"}}
+{"date": "2026-06-12", "machine_id": "M01", "channel": "mixed", "collected_gbp": 142.0, "expected_gbp": 145.0, "note": "Coin float light; within noise."}
+{"date": "2026-06-12", "machine_id": "M02", "channel": "cashless", "collected_gbp": 138.0, "expected_gbp": 138.0, "note": "Cashless only; exact."}
+{"date": "2026-06-12", "machine_id": "M03", "channel": "mixed", "collected_gbp": 121.0, "expected_gbp": 132.0, "note": "-8.3% — coin validator suspected, recount next visit."}
+{"date": "2026-06-12", "machine_id": "M04", "channel": "mixed", "collected_gbp": 159.0, "expected_gbp": 157.0, "note": "Within noise."}
