@@ -1,0 +1,21 @@
+{
+  "_meta": {
+    "id": "bos.schema.cash_ledger_entry",
+    "purpose": "Contract for one cash collection / reconciliation record.",
+    "applies_to": "state/cash_ledger.jsonl",
+    "updated": "2026-06-15"
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cash Ledger Entry",
+  "type": "object",
+  "required": ["date", "machine_id", "collected_gbp", "expected_gbp"],
+  "additionalProperties": false,
+  "properties": {
+    "date": {"type": "string", "format": "date"},
+    "machine_id": {"type": "string"},
+    "channel": {"type": "string", "enum": ["coin", "note", "cashless", "mixed"], "default": "mixed"},
+    "collected_gbp": {"type": "number", "minimum": 0, "description": "Actual amount collected/banked."},
+    "expected_gbp": {"type": "number", "minimum": 0, "description": "Telemetry-expected amount."},
+    "note": {"type": "string"}
+  }
+}

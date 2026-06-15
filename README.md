@@ -63,12 +63,60 @@ See the **Strategy Notes** sheet for full rationale.
 ## Regenerating
 
 ```bash
-pip install openpyxl
-python3 generate.py          # workbook
-python3 generate_report.py   # HTML report
+pip install -r requirements.txt
+python3 generate.py          # market-research workbook
+python3 generate_report.py   # market-research HTML report
 ```
 
 Data lives in `data/*.json`. Edit those files and regenerate both outputs.
+
+---
+
+## Track 2 — Business Operating System (`bos/`)
+
+A second research track layered on top of the market research. Where the workbook above
+answers *"is this opportunity worth pursuing, and where?"*, the BOS answers
+*"how do we **run** it — daily/weekly — so it is profitable, delegable, and automatable?"*
+
+It is **optimised for agentic automation**: everything is a file, computation lives in
+deterministic CLI tools (not LLM math), tools pipe JSON, and an agent discovers the whole
+system from `bos/AGENTS.md` + `bos/tools/manifest.json` without reading generator source.
+
+**Start here:** open `TheSnackChoice_OS_Manual.html` (handbook + live scorecard) or read
+`bos/AGENTS.md`. Design + rationale: `bos/PLAN.md`. Guesses-under-test: `bos/ASSUMPTIONS.md`
+and `scratch/spikes/`.
+
+| Path | What it is |
+|------|-----------|
+| `bos/AGENTS.md` | Entry point for agents & operators (read first) |
+| `bos/config/*.yaml` | Definitions: KPIs, cadence, tasks→pipelines→workflows, policies, planograms, risks |
+| `bos/config/playbooks/*.md` | SOPs (restock, install, fault triage, cash recon, reorder, planogram) |
+| `bos/state/*` | Operational records (machine state, scorecard, cash, incidents, decisions) |
+| `bos/schema/*.json` | JSON Schema contracts for every state record |
+| `bos/tools/*.py` + `manifest.json` | Deterministic CLIs (the API): kpi, policy, route, reorder, scorecard, validate |
+| `bos/build.py` | Orchestrator: validate → compute → generate |
+| `generate_bos.py` → `TheSnackChoice_OperatingSystem.xlsx` | 9-sheet operating workbook |
+| `generate_bos_manual.py` → `TheSnackChoice_OS_Manual.html` | HTML operating manual + scorecard |
+| `scratch/spikes/` | Cheap experiments to discharge unevidenced assumptions |
+
+**North star:** revenue per operator-hour. Every routine, policy, and KPI serves it.
+
+**Run the OS:**
+
+```bash
+pip install -r requirements.txt
+python3 bos/build.py                                  # validate + compute + regenerate both outputs
+
+# operate it (deterministic tools, JSON in/out):
+python3 bos/tools/kpi.py compute --latest             # this week's numbers
+python3 bos/tools/route.py plan                        # clustered restock route
+python3 bos/tools/reorder.py                           # purchase order
+python3 bos/tools/policy.py evaluate --decision site-go-nogo --input '{"vending_score":8}' --log
+```
+
+**Principle — evidence or spike.** Operating assumptions are listed in
+`bos/ASSUMPTIONS.md` with evidence status; anything unevidenced gets a time-boxed spike
+in `scratch/spikes/` rather than being hardened into the system as if it were fact.
 
 ## Data Confidence
 

@@ -1,0 +1,29 @@
+# ---
+# id: bos.config.pipelines
+# purpose: Ordered compositions of tasks (the pipes). Output of one step feeds the next.
+# consumed_by: [workflows.yaml, generate_bos.py, generate_bos_manual.py]
+# updated: 2026-06-15
+# ---
+_meta:
+  id: bos.config.pipelines
+
+pipelines:
+  - id: close-the-week
+    label: Close the week and decide
+    steps: [log-scorecard, compute-kpis, evaluate-flags, record-decisions, regenerate-manual]
+    note: "The core weekly loop. Stops at evaluate-flags if all KPIs are green."
+
+  - id: replenish
+    label: Plan and execute restock
+    steps: [plan-route, build-reorder, restock-run, reconcile-cash]
+    note: "Clustered route first (route.py groups by site to protect route £/hr)."
+
+  - id: monthly-performance-gate
+    label: Keep / fix / cut sites and products
+    steps: [compute-kpis, evaluate-flags, record-decisions, update-planogram]
+    note: "Applies site-keep-fix-cut and product-cut policies."
+
+  - id: capital-allocation
+    label: Deploy capital to constrained demand
+    steps: [compute-kpis, record-decisions, install-site]
+    note: "Applies machine-buy policy; only fires where demand is constrained."

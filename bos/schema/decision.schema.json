@@ -1,0 +1,24 @@
+{
+  "_meta": {
+    "id": "bos.schema.decision",
+    "purpose": "Contract for one logged decision (which policy fired, the verdict, the inputs).",
+    "applies_to": "state/decisions.jsonl",
+    "updated": "2026-06-15"
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Decision",
+  "description": "An auditable record of a decision taken via a policy. Written by tools/policy.py.",
+  "type": "object",
+  "required": ["id", "date", "policy", "verdict", "inputs"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {"type": "string", "description": "Unique decision id, e.g. DEC-2026-001."},
+    "date": {"type": "string", "format": "date"},
+    "policy": {"type": "string", "description": "Policy id from config/policies.yaml."},
+    "subject": {"type": "string", "description": "What the decision is about, e.g. a site or SKU name."},
+    "verdict": {"type": "string", "description": "The outcome, e.g. GO / WATCH / NO / CUT / KEEP / BUY / HOLD."},
+    "reasons": {"type": "array", "items": {"type": "string"}, "description": "Human-readable reasons the policy produced this verdict."},
+    "inputs": {"type": "object", "description": "The input values evaluated."},
+    "decided_by": {"type": "string", "enum": ["agent", "operator"], "default": "operator"}
+  }
+}

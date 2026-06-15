@@ -1,0 +1,53 @@
+# ---
+# id: bos.config.risks
+# purpose: Risk register — operational failure modes, likelihood/impact, mitigations,
+#          and the early-warning signal (usually a KPI or incident type) that flags them.
+# consumed_by: [generate_bos.py, generate_bos_manual.py]
+# updated: 2026-06-15
+# ---
+_meta:
+  id: bos.config.risks
+
+risks:
+  - id: R1
+    risk: "Site revokes free placement or demands rent"
+    likelihood: medium
+    impact: high
+    signal: "Landlord contact; rev/operator-hr collapse at one site."
+    mitigation: "Written placement terms; keep a scouted pipeline so a machine can redeploy fast (A4: rent moves breakeven 4->16 vends/day)."
+  - id: R2
+    risk: "Machine fault / jam causes silent revenue loss"
+    likelihood: high
+    impact: medium
+    signal: "Telemetry sold-out flag; stockout_rate_pct rising; vends drop."
+    mitigation: "Daily telemetry check (cadence:daily) + fault-triage playbook within 1 day."
+  - id: R3
+    risk: "Cash shrinkage (theft, miscount, validator drift)"
+    likelihood: medium
+    impact: medium
+    signal: "cash_variance_pct breaches band (cash-investigate policy)."
+    mitigation: "Cashless-first (Nayax); weekly reconciliation; investigate >4% variance."
+  - id: R4
+    risk: "Over-restocking burns operator-hours"
+    likelihood: high
+    impact: medium
+    signal: "route_revenue_per_hour below £25; many near-full machines on a run."
+    mitigation: "Restock by trigger not habit (route.py); cluster stops (A3); discharge spike 001/002."
+  - id: R5
+    risk: "Demand over-estimated; machine sits below breakeven"
+    likelihood: medium
+    impact: high
+    signal: "vends_per_machine_per_day < 4 for a site (red band)."
+    mitigation: "site-keep-fix-cut policy at monthly gate; redeploy rather than subsidise."
+  - id: R6
+    risk: "Single-operator bus factor (illness, holiday)"
+    likelihood: medium
+    impact: high
+    signal: "Missed route days; rising stockouts."
+    mitigation: "Everything-is-a-file + playbooks make routes delegable to a relief driver or agent with no tribal knowledge."
+  - id: R7
+    risk: "Wholesale price rises compress margin"
+    likelihood: medium
+    impact: medium
+    signal: "gross_margin_pct < 50 (price-change policy)."
+    mitigation: "Multi-wholesaler sourcing (Booker/Bestway); raise vend price; product mix toward higher-margin lines."

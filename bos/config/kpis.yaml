@@ -1,0 +1,86 @@
+# ---
+# id: bos.config.kpis
+# purpose: KPI definitions — the single source of truth for what we measure and the
+#          formula for each. tools/kpi.py reads this and computes; nobody computes by hand.
+# inputs: state/scorecard.jsonl, state/machines_state.json
+# consumed_by: [tools/kpi.py, generate_bos.py, generate_bos_manual.py]
+# updated: 2026-06-15
+# ---
+_meta:
+  id: bos.config.kpis
+  north_star: rev_per_operator_hour
+
+# Formula variables are fields of a scorecard_entry (see schema/scorecard_entry.schema.json).
+# direction: higher_better | lower_better | abs_lower_better (uses absolute value)
+# status: value vs thresholds.green / thresholds.red
+kpis:
+  - id: rev_per_operator_hour
+    label: Revenue per operator-hour
+    unit: "£/hr"
+    north_star: true
+    source: scorecard
+    formula: "gross_revenue / operator_hours"
+    direction: higher_better
+    target: 30
+    thresholds: {green: 30, red: 15}
+    evidence: "EVIDENCED (A2) — Performance Review bands red<£15, green>£30."
+
+  - id: gross_margin_pct
+    label: Blended gross margin
+    unit: "%"
+    source: scorecard
+    formula: "(gross_revenue - cogs) / gross_revenue * 100"
+    direction: higher_better
+    target: 50
+    thresholds: {green: 50, red: 40}
+    evidence: "EVIDENCED (A5) — data/products.json wholesale vs vend prices."
+
+  - id: vends_per_machine_per_day
+    label: Vends per machine per day
+    unit: "vends/day"
+    source: scorecard
+    formula: "vends / machine_days"
+    direction: higher_better
+    target: 15
+    thresholds: {green: 15, red: 4}
+    evidence: "MIXED — red=4 breakeven EVIDENCED (A4); green=15 target is SPIKE 006."
+
+  - id: stockout_rate_pct
+    label: Stockout rate
+    unit: "%"
+    source: scorecard
+    formula: "stockout_days / machine_days * 100"
+    direction: lower_better
+    target: 5
+    thresholds: {green: 5, red: 10}
+    evidence: "SPIKE 003 — target <5% is a guess pending data."
+
+  - id: cash_variance_pct
+    label: Cash variance (collected vs expected)
+    unit: "%"
+    source: scorecard
+    formula: "(cash_collected - cash_expected) / cash_expected * 100"
+    direction: abs_lower_better
+    target: 0
+    thresholds: {green: 2, red: 4}
+    evidence: "SPIKE 004 — ±2% noise floor is a guess pending reconciliation data."
+
+  - id: route_revenue_per_hour
+    label: Route revenue per hour (on-road efficiency)
+    unit: "£/hr"
+    source: scorecard
+    formula: "gross_revenue / route_hours"
+    direction: higher_better
+    target: 44
+    thresholds: {green: 44, red: 25}
+    evidence: "EVIDENCED (A3) — clustered ~£44/hr vs scattered £15-25/hr (Strategy Notes)."
+
+  - id: machines_live
+    label: Live machines
+    unit: count
+    source: machines_state
+    formula: "count(status == 'live')"
+    direction: higher_better
+    target: 5
+    thresholds: {green: 5, red: 1}
+    evidence: "Operational — counted from machines_state.json."

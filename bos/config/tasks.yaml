@@ -1,0 +1,96 @@
+# ---
+# id: bos.config.tasks
+# purpose: Atomic units of work. A task is either a deterministic `tool` call or a
+#          human `playbook`. Tasks compose into pipelines.yaml. There are no roles —
+#          any task may be run by an agent or a human.
+# consumed_by: [pipelines.yaml, generate_bos.py, generate_bos_manual.py]
+# updated: 2026-06-15
+# ---
+_meta:
+  id: bos.config.tasks
+
+# kind: tool (deterministic CLI) | playbook (human SOP) | agent (judgment step)
+tasks:
+  - id: log-scorecard
+    label: Append this week's raw operating inputs
+    kind: tool
+    command: "python bos/tools/scorecard.py append --file <entry.json>"
+    inputs: [scorecard_entry]
+    outputs: [state/scorecard.jsonl]
+
+  - id: compute-kpis
+    label: Compute KPIs for a week
+    kind: tool
+    command: "python bos/tools/kpi.py compute --latest"
+    inputs: [state/scorecard.jsonl, config/kpis.yaml]
+    outputs: [kpi report (stdout JSON)]
+
+  - id: evaluate-flags
+    label: Turn red/amber KPIs into candidate decisions
+    kind: agent
+    note: "Read the kpi report; for each red KPI, pick the matching policy to evaluate."
+    inputs: [kpi report]
+    outputs: [list of policy evaluations to run]
+
+  - id: record-decisions
+    label: Evaluate a policy and log the verdict
+    kind: tool
+    command: "python bos/tools/policy.py evaluate --decision <id> --input <input.json> --log"
+    inputs: [config/policies.yaml]
+    outputs: [state/decisions.jsonl]
+
+  - id: plan-route
+    label: Build a clustered restock route
+    kind: tool
+    command: "python bos/tools/route.py plan"
+    inputs: [state/machines_state.json, config/policies.yaml]
+    outputs: [route plan (stdout JSON)]
+
+  - id: build-reorder
+    label: Build a supplier purchase order from fleet fill levels
+    kind: tool
+    command: "python bos/tools/reorder.py"
+    inputs: [state/machines_state.json, ../data/products.json]
+    outputs: [purchase order (stdout JSON)]
+
+  - id: restock-run
+    label: Drive the route and refill machines
+    kind: playbook
+    playbook: restock-run
+    inputs: [route plan]
+    outputs: [updated machines_state.json, cash_ledger entries]
+
+  - id: reconcile-cash
+    label: Reconcile collected vs telemetry-expected cash
+    kind: playbook
+    playbook: cash-reconciliation
+    inputs: [state/cash_ledger.jsonl]
+    outputs: [incidents.jsonl (if variance breach)]
+
+  - id: triage-fault
+    label: Diagnose and clear a machine fault
+    kind: playbook
+    playbook: fault-triage
+    inputs: [incident]
+    outputs: [updated incident]
+
+  - id: install-site
+    label: Install a machine at a new site
+    kind: playbook
+    playbook: new-site-install
+    inputs: [decision GO]
+    outputs: [new machines_state record]
+
+  - id: update-planogram
+    label: Swap products in a machine's planogram
+    kind: playbook
+    playbook: planogram-update
+    inputs: [decision CUT/KEEP]
+    outputs: [updated machines_state record]
+
+  - id: regenerate-manual
+    label: Rebuild the workbook + HTML operating manual
+    kind: tool
+    command: "python bos/build.py"
+    inputs: [config/, state/]
+    outputs: [TheSnackChoice_OperatingSystem.xlsx, TheSnackChoice_OS_Manual.html]

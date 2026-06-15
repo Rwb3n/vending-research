@@ -1,0 +1,45 @@
+# ---
+# id: bos.config.cadence
+# purpose: The operating rhythm — what happens daily / weekly / monthly / quarterly.
+#          Workflows (workflows.yaml) bind to these triggers.
+# consumed_by: [workflows.yaml, generate_bos.py, generate_bos_manual.py]
+# updated: 2026-06-15
+# ---
+_meta:
+  id: bos.config.cadence
+
+cadence:
+  - id: daily
+    trigger: "every operating day"
+    purpose: "Keep machines full and faults short-lived; nothing should fester a day."
+    routines:
+      - "Check telemetry dashboard for faults / sold-out flags (5 min)."
+      - "Triage any fault incident -> playbook fault-triage."
+      - "Confirm tomorrow's route if any machine is below restock trigger."
+
+  - id: weekly
+    trigger: "Monday morning"
+    purpose: "Close the prior week, read the one number, decide the week."
+    routines:
+      - "Run weekly-review workflow (scorecard -> KPIs -> flags -> decisions)."
+      - "Plan + run restock routes (route.py, clustered)."
+      - "Reconcile cash collected vs telemetry (cash-reconciliation playbook)."
+      - "Place supplier order for the week (reorder.py -> supplier-reorder playbook)."
+
+  - id: monthly
+    trigger: "first Monday of the month"
+    purpose: "Performance gate — keep / fix / cut sites and products."
+    routines:
+      - "Run monthly-gate workflow."
+      - "Review per-site revenue/operator-hour; apply site keep/fix/cut policy."
+      - "Review per-SKU performance; apply product-cut policy (when data exists)."
+      - "Review open incidents and spikes; discharge any that have enough data."
+
+  - id: quarterly
+    trigger: "first week of the quarter"
+    purpose: "Strategy + capital allocation."
+    routines:
+      - "Review north-star trend across the quarter."
+      - "Apply machine-buy policy: deploy capital where demand is constrained."
+      - "Re-scout pipeline (Location Tracker) for next sites."
+      - "Re-read ASSUMPTIONS.md; promote discharged spikes into config."

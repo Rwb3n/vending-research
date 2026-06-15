@@ -1,0 +1,14 @@
+{
+  "_meta": {
+    "id": "bos.state.machines",
+    "purpose": "Current fleet snapshot. Mutable; updated on every restock/install. Each item validates against schema/machine_state.schema.json.",
+    "updated": "2026-06-15"
+  },
+  "machines": [
+    {"machine_id": "M01", "model": "Gusto Swing (Gusto 8)", "site": "Beddington Lane — Prologis Park units", "postcode": "CR0 4TD", "status": "live", "installed": "2026-04-01", "capacity": 390, "current_fill": 0.22, "last_restock": "2026-06-08", "planogram": "standard-industrial", "telemetry": "nayax"},
+    {"machine_id": "M02", "model": "Gusto Swing (Gusto 8)", "site": "Beddington Lane — Silverwing Industrial Estate", "postcode": "CR0 4XX", "status": "live", "installed": "2026-04-15", "capacity": 390, "current_fill": 0.55, "last_restock": "2026-06-12", "planogram": "standard-industrial", "telemetry": "nayax"},
+    {"machine_id": "M03", "model": "Gusto Swing (Gusto 8)", "site": "Beddington Lane — Prologis Park units", "postcode": "CR0 4TD", "status": "live", "installed": "2026-05-01", "capacity": 390, "current_fill": 0.18, "last_restock": "2026-06-08", "planogram": "drinks-heavy", "telemetry": "nayax"},
+    {"machine_id": "M04", "model": "Gusto Swing (Gusto 8)", "site": "Purley Way — retail park staff area", "postcode": "CR0 4NZ", "status": "live", "installed": "2026-05-15", "capacity": 390, "current_fill": 0.61, "last_restock": "2026-06-12", "planogram": "standard-industrial", "telemetry": "nayax"},
+    {"machine_id": "M05", "model": "Gusto Swing (Gusto 8)", "site": "Beddington Lane — Silverwing Industrial Estate", "postcode": "CR0 4XX", "status": "install_pending", "installed": "2026-06-20", "capacity": 390, "current_fill": 0.0, "last_restock": "2026-06-20", "planogram": "standard-industrial", "telemetry": "nayax"}
+  ]
+}
