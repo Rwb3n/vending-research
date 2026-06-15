@@ -43,11 +43,27 @@ def evaluate(policy, inputs):
     return default.get("verdict", "UNDECIDED"), [default.get("reason", "no rule matched")]
 
 
-def next_decision_id():
-    year = datetime.date.today().year
-    existing = common.load_jsonl(DECISIONS_PATH) if os.path.exists(DECISIONS_PATH) else []
+def _existing_decisions():
+    return common.load_jsonl(DECISIONS_PATH) if os.path.exists(DECISIONS_PATH) else []
+
+
+def next_decision_id(year):
+    existing = _existing_decisions()
     nums = [int(d["id"].split("-")[-1]) for d in existing if d.get("id", "").startswith(f"DEC-{year}-")]
     return f"DEC-{year}-{max(nums, default=0) + 1:03d}"
+
+
+def week_monday_iso(week):
+    """ISO week string '2026-W24' -> the Monday of that week as an ISO date string.
+    Anchors a decision's date to the week it reviews, not the wall-clock run time."""
+    year_s, wk_s = week.split("-W")
+    return datetime.date.fromisocalendar(int(year_s), int(wk_s), 1).isoformat()
+
+
+def current_iso_week():
+    """Fallback when no --week is given: today's ISO week (preserves old ad-hoc use)."""
+    y, w, _ = datetime.date.today().isocalendar()
+    return f"{y}-W{w:02d}"
 
 
 def main():
@@ -74,11 +90,25 @@ def main():
               "reasons": reasons, "inputs": inputs}
 
     if "--log" in sys.argv:
-        record = {"id": next_decision_id(), "date": datetime.date.today().isoformat(),
-                  "policy": pid, "subject": get_arg("--subject", pid), "verdict": verdict,
-                  "reasons": reasons, "inputs": inputs, "decided_by": "agent"}
-        common.append_jsonl(DECISIONS_PATH, record)
-        result["logged"] = record["id"]
+        # week-anchored: the record's date is the Monday of the week it reviews, so a
+        # weekly logbook is reproducible regardless of when the review is run.
+        week = get_arg("--week") or current_iso_week()
+        subject = get_arg("--subject", pid)
+        # idempotent per (week, policy, subject): re-running a week's review must not
+        # double-log. If a matching record exists, return it instead of appending.
+        dupe = next((d for d in _existing_decisions()
+                     if d.get("week") == week and d.get("policy") == pid
+                     and d.get("subject") == subject), None)
+        if dupe:
+            result["logged"] = dupe["id"]
+            result["deduped"] = True
+        else:
+            record = {"id": next_decision_id(week.split("-W")[0]),
+                      "date": week_monday_iso(week), "week": week,
+                      "policy": pid, "subject": subject, "verdict": verdict,
+                      "reasons": reasons, "inputs": inputs, "decided_by": "agent"}
+            common.append_jsonl(DECISIONS_PATH, record)
+            result["logged"] = record["id"]
 
     common.emit(result)
 

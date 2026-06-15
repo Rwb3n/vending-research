@@ -13,10 +13,19 @@ updated: 2026-06-15
 """
 import json
 import os
+import shlex
 import shutil
 import subprocess
 import sys
 import tempfile
+
+# Self-sufficient on every platform: force UTF-8 stdout so the arrows/emoji/box-
+# drawing render on Windows (cp1252) the same as on Linux/macOS — no env vars needed.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):
+        pass
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 BOS = os.path.dirname(HERE)
@@ -44,12 +53,26 @@ def banner(n, title):
         "\033[1;36m" + "=" * 64 + "\033[0m")
 
 
+def _split_brief_cmd(cmd):
+    """Parse a brief's `python bos/tools/... --input '...'` command string into argv,
+    dropping the leading `python` (run() prepends the interpreter). shlex handles the
+    single-quoted JSON arg correctly on both platforms."""
+    parts = shlex.split(cmd, posix=True)
+    return parts[1:] if parts and parts[0] in ("python", "python3", PY) else parts
+
+
 def run(args, env, show=True):
     """Run a tool, echo a compact view, return parsed JSON (or None)."""
     cmd = [PY] + args
     if not QUIET:
         print(f"\n\033[2m$ {' '.join(args)}\033[0m")
-    res = subprocess.run(cmd, cwd=REPO, env=env, capture_output=True, text=True)
+    # tools emit UTF-8 (£, →, ★); decode their stdout as UTF-8 and ask child
+    # Python to encode UTF-8 too, so neither side trips over a cp1252 console.
+    cenv = dict(env)
+    cenv["PYTHONUTF8"] = "1"
+    cenv["PYTHONIOENCODING"] = "utf-8"
+    res = subprocess.run(cmd, cwd=REPO, env=cenv, capture_output=True,
+                         text=True, encoding="utf-8")
     out = res.stdout.strip()
     if res.returncode != 0 and not out:
         print(res.stderr.strip())
@@ -103,28 +126,47 @@ def main():
         ambers = [k for k in report["kpis"] if k["status"] in ("amber", "red")]
         say("", f"   {len(ambers)} KPI(s) need a look: " + ", ".join(k["label"] for k in ambers))
 
-        # 3 — decide (policies, logged + auditable)
-        banner(3, "Decide (evaluate policies, log verdicts)")
-        say("Each soft KPI maps to a policy. Verdicts are logged with reasons — auditable.")
+        # 3 — brief the three readers, then act on what the ghost CAN act on
+        banner(3, "Brief & decide (one truth → 3 views; ghost acts, pilot decides)")
+        say("Each flag carries an acts_via binding. The brief partitions them by trust:",
+            "  runnable = ghost logs it unattended · proposes = pilot commits · manual = SOP.",
+            "No hand-wired decisions — every action is computed from kpis.yaml.")
+        brief_out = os.path.join(out_dir, "live")
+        run(["bos/tools/brief.py", "--latest", "--out", brief_out], env, show=False)
+        say(f"\n   → wrote machine/agent/operator briefs to {os.path.relpath(brief_out, REPO)}/")
+        agent_brief = json.load(open(os.path.join(brief_out, "brief.agent.json"), encoding="utf-8"))
 
-        def decide(decision, inputs, subject, note):
-            say(f"\n• {note}")
-            d = run(["bos/tools/policy.py", "evaluate", "--decision", decision,
-                     "--input", json.dumps(inputs), "--subject", subject, "--log"], env, show=False)
+        # the ghost acts ONLY on runnable flags whose command is non-null.
+        # it runs the brief's command VERBATIM — the brief is the instruction.
+        logged = []
+
+        # north-star heartbeat first: on a green week, log the weekly KEEP (logbook).
+        hb = agent_brief.get("heartbeat")
+        if hb:
+            say(f"\n• \033[1mheartbeat\033[0m → {hb['label']}: green; log the weekly confirmation.")
+            d = run(_split_brief_cmd(hb["command"]), env, show=False)
             if d:
-                say(f"   → \033[1m{d['verdict']}\033[0m — {d['reasons'][0]}"
+                say(f"   → \033[1m{d['verdict']}\033[0m — north star holds"
                     + (f"  [logged {d['logged']}]" if d.get("logged") else ""))
-            return d
+                logged.append(d.get("logged"))
 
-        ns = next(k for k in report["kpis"] if k["north_star"])
-        decide("site-keep-fix-cut", {"rev_per_operator_hour": ns["value"]},
-               "Beddington Lane estate",
-               "Estate keep/fix/cut — against north-star revenue/operator-hour:")
-        decide("cash-investigate", {"variance_pct": -8.3}, "M03 collection 2026-06-12",
-               "Cash variance — a collection came in 8.3% light at M03:")
-        margin = next(k for k in report["kpis"] if k["id"] == "gross_margin_pct")
-        decide("price-change", {"gross_margin_pct": margin["value"]}, "fleet blended margin",
-               "Margin check — confirm prices/terms still healthy:")
+        for f in agent_brief["flags"]:
+            a = f["action"]
+            if a.get("mode") == "runnable" and a.get("command"):
+                say(f"\n• \033[1mrunnable\033[0m → {f['label']}: ghost runs the briefed command.")
+                d = run(_split_brief_cmd(a["command"]), env, show=False)
+                if d:
+                    say(f"   → \033[1m{d['verdict']}\033[0m — {d['reasons'][0]}"
+                        + (f"  [logged {d['logged']}]" if d.get("logged") else ""))
+                    logged.append(d.get("logged"))
+        for kid in agent_brief["proposes"]:
+            say(f"\n• \033[1mproposes\033[0m → {kid}: needs multi-week judgment the pilot supplies; "
+                "ghost would draft a *proposed* decision, not commit one.")
+        for kid in agent_brief["manual"]:
+            say(f"• \033[1mmanual\033[0m   → {kid}: follow the bound playbook (human SOP).")
+        say("", f"   {len(logged)} decision(s) auto-logged · "
+            f"{len(agent_brief['proposes'])} awaiting pilot · "
+            f"{len(agent_brief['manual'])} manual.")
 
         # 4 — replenish
         banner(4, "Replenish (clustered route + per-SKU order)")
@@ -152,11 +194,17 @@ def main():
             benv = dict(env)
             benv["BOS_MANUAL_OUT"] = manual_out
             run(["generate_bos_manual.py"], benv)
-            say(f"   → {os.path.relpath(manual_out, REPO)} (open in a browser)")
+            say(f"   → {os.path.relpath(manual_out, REPO)} (system reference, open in a browser)")
+        # the pilot's "what do I do next?" lives in the operator brief from step 3
+        op_brief = os.path.relpath(os.path.join(brief_out, "brief.operator.md"), REPO)
+        say(f"   → {op_brief} ← \033[1mthe pilot's next-steps for the week\033[0m")
 
         # wrap
         say("", "\033[1;32m" + "─" * 64 + "\033[0m",
-            "\033[1;32m  Loop closed.\033[0m  3 decisions logged · route planned · PO ready · manual refreshed.",
+            f"\033[1;32m  Loop closed.\033[0m  3 views briefed · {len(logged)} decision(s) "
+            f"auto-logged · {len(agent_brief['proposes'])} awaiting pilot · route + PO ready · "
+            "manual refreshed.",
+            "  Every action was computed from kpis.yaml (no hand-wired decisions).",
             "  Committed state was never touched (sandbox).",
             "\033[1;32m" + "─" * 64 + "\033[0m")
     finally:
