@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.join(HERE, "bos", "tools"))
 import common  # noqa: E402
 import kpi as kpi_tool  # noqa: E402
 
-OUTPUT = os.path.join(HERE, "TheSnackChoice_OS_Manual.html")
+OUTPUT = os.environ.get("BOS_MANUAL_OUT") or os.path.join(HERE, "TheSnackChoice_OS_Manual.html")
 E = lambda s: html.escape(str(s))
 
 CSS = """

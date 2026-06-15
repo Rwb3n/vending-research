@@ -63,6 +63,14 @@
       "reads": ["bos/config/*", "bos/state/*"],
       "writes": ["TheSnackChoice_OperatingSystem.xlsx", "TheSnackChoice_OS_Manual.html"],
       "when": "After any change to config or state."
+    },
+    {
+      "id": "demo",
+      "cmd": "python bos/demo/week_in_the_life.py [--quiet] [--no-build]",
+      "does": "Reproducible 'week in the life' — drives the whole weekly loop through the real tools against a sandbox copy of state (never mutates committed data).",
+      "reads": ["bos/state/* (copied to sandbox)", "bos/config/*"],
+      "writes": ["bos/demo/out/ (demo manual only)"],
+      "when": "Demoing or smoke-testing the end-to-end loop."
     }
   ]
 }
