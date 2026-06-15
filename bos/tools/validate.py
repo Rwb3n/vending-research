@@ -38,6 +38,29 @@ def validate_file(fname):
     return len(records), errors
 
 
+def validate_planograms():
+    """Validate every planogram line against its schema and cross-check SKUs exist
+    in the catalog. Also confirms each machine references a known planogram."""
+    schema = common.load_json(os.path.join(common.SCHEMA_DIR, "planogram_line.schema.json"))
+    validator = Draft202012Validator(schema)
+    planograms = common.load_yaml(os.path.join(common.CONFIG_DIR, "planograms.yaml"))["planograms"]
+    catalog = {p["name"] for p in common.load_json(os.path.join(common.DATA_DIR, "products.json"))}
+    machines = common.load_json(os.path.join(common.STATE_DIR, "machines_state.json"))["machines"]
+
+    count, errors = 0, []
+    for pid, pg in planograms.items():
+        for i, line in enumerate(pg.get("lines", [])):
+            count += 1
+            for err in validator.iter_errors(line):
+                errors.append({"file": f"planograms.yaml:{pid}", "record": i, "path": list(err.path), "message": err.message})
+            if line.get("sku") not in catalog:
+                errors.append({"file": f"planograms.yaml:{pid}", "record": i, "message": f"SKU not in catalog: {line.get('sku')}"})
+    for m in machines:
+        if m.get("planogram") not in planograms:
+            errors.append({"file": "machines_state.json", "record": m["machine_id"], "message": f"references unknown planogram: {m.get('planogram')}"})
+    return count, errors
+
+
 def main():
     args = sys.argv[1:]
     if not args or args[0] == "--all":
@@ -52,6 +75,10 @@ def main():
     for fname in files:
         count, errors = validate_file(fname)
         report["checked"][fname] = count
+        report["errors"].extend(errors)
+    if not args or args[0] == "--all":
+        count, errors = validate_planograms()
+        report["checked"]["planograms.yaml"] = count
         report["errors"].extend(errors)
     report["ok"] = not report["errors"]
     common.emit(report)

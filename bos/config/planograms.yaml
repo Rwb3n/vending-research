@@ -1,0 +1,105 @@
+# ---
+# id: bos.config.planograms
+# purpose: Planogram definitions — what SKU sits in each machine and how much (the
+#          refill-to-par plan). machines_state.json references these by id. reorder.py
+#          uses them to build a real per-SKU purchase order. Lines validate against
+#          schema/planogram_line.schema.json; SKUs must exist in data/products.json.
+# model: facings = how many selections a SKU occupies (top sellers get more);
+#        par_each = max units per facing. Units to hold = facings * par_each.
+# gusto8_layout: 48 selections (24 snack / 8 food / 16 bottles), ~390 items, 7 trays.
+# evidence: SKU choice from data/products.json (catalog). PAR LEVELS ARE A SPIKE —
+#           see scratch/spikes/007-planogram-par-levels.md — until depletion/telemetry
+#           data discharges them. Tune par_each, not the structure.
+# consumed_by: [tools/reorder.py, tools/validate.py]
+# updated: 2026-06-15
+# ---
+_meta:
+  id: bos.config.planograms
+
+planograms:
+  standard-industrial:
+    label: "Standard industrial (snack-led)"
+    note: "Default for warehouse/logistics sites. 24 snack / 8 food / 16 bottle facings."
+    lines:
+      # --- snack tray (confectionery) ---
+      - {sku: "Mars Bar 51g",            category: Confectionery, facings: 2, par_each: 10}
+      - {sku: "Snickers 48g",            category: Confectionery, facings: 2, par_each: 10}
+      - {sku: "KitKat 4 Finger 41.5g",   category: Confectionery, facings: 2, par_each: 10}
+      - {sku: "Dairy Milk 45g",          category: Confectionery, facings: 2, par_each: 10}
+      - {sku: "Twirl 43g",               category: Confectionery, facings: 1, par_each: 10}
+      - {sku: "Maltesers 37g",           category: Confectionery, facings: 1, par_each: 10}
+      - {sku: "Kinder Bueno 43g",        category: Confectionery, facings: 1, par_each: 10}
+      - {sku: "Bounty 57g",              category: Confectionery, facings: 1, par_each: 10}
+      - {sku: "Skittles Fruits 45g",     category: Confectionery, facings: 1, par_each: 10}
+      - {sku: "Haribo Starmix 40g",      category: Confectionery, facings: 1, par_each: 10}
+      # --- snack tray (crisps) ---
+      - {sku: "Walkers Cheese & Onion Grab Bag 45g", category: Crisps, facings: 2, par_each: 8}
+      - {sku: "Walkers Ready Salted Grab Bag 45g",   category: Crisps, facings: 2, par_each: 8}
+      - {sku: "McCoy's Salt & Vinegar Grab Bag 45g", category: Crisps, facings: 1, par_each: 8}
+      - {sku: "Doritos Chilli Heatwave 40g",         category: Crisps, facings: 1, par_each: 8}
+      - {sku: "Quavers Cheese 34g",                  category: Crisps, facings: 1, par_each: 8}
+      - {sku: "Wotsits Really Cheesy 36g",           category: Crisps, facings: 1, par_each: 8}
+      - {sku: "Pom-Bear Original 19g",               category: Crisps, facings: 1, par_each: 8}
+      - {sku: "Kettle Lightly Salted 40g",           category: Crisps, facings: 1, par_each: 8}
+      # --- food tray (protein/health) ---
+      - {sku: "Grenade Carb Killa Cookie Dough 60g", category: Protein/Health, facings: 1, par_each: 6}
+      - {sku: "Grenade Carb Killa Oreo 60g",         category: Protein/Health, facings: 1, par_each: 6}
+      - {sku: "Trek Protein Flapjack Cocoa Oat 50g", category: Protein/Health, facings: 1, par_each: 6}
+      - {sku: "Nakd Cocoa Delight 35g",              category: Protein/Health, facings: 1, par_each: 6}
+      - {sku: "Fulfil Chocolate & Hazelnut 55g",     category: Protein/Health, facings: 1, par_each: 6}
+      - {sku: "Barebells Protein Bar Salty Peanut 55g", category: Protein/Health, facings: 1, par_each: 6}
+      - {sku: "Optimum Nutrition Protein Shake Chocolate 330ml", category: Protein/Health, facings: 1, par_each: 5}
+      - {sku: "Grenade Protein Shake Chocolate Insanity 330ml",  category: Protein/Health, facings: 1, par_each: 5}
+      # --- bottle trays (cold drinks) ---
+      - {sku: "Coca-Cola Original 330ml Can", category: Cold Drinks, facings: 2, par_each: 6}
+      - {sku: "Diet Coke 330ml Can",          category: Cold Drinks, facings: 2, par_each: 6}
+      - {sku: "Fanta Orange 330ml Can",       category: Cold Drinks, facings: 1, par_each: 6}
+      - {sku: "Pepsi 330ml Can",              category: Cold Drinks, facings: 1, par_each: 6}
+      - {sku: "7Up 330ml Can",                category: Cold Drinks, facings: 1, par_each: 6}
+      - {sku: "Lucozade Original 380ml",      category: Cold Drinks, facings: 1, par_each: 6}
+      - {sku: "Lipton Iced Tea Peach 330ml Can", category: Cold Drinks, facings: 1, par_each: 6}
+      - {sku: "Monster Energy 500ml Can",     category: Cold Drinks, facings: 1, par_each: 6}
+      - {sku: "Red Bull 250ml Can",           category: Cold Drinks, facings: 1, par_each: 6}
+      - {sku: "Oasis Citrus Punch 500ml",     category: Cold Drinks, facings: 1, par_each: 6}
+      # --- bottle trays (water) ---
+      - {sku: "Highland Spring Still 500ml",  category: Water, facings: 2, par_each: 6}
+      - {sku: "Evian 500ml",                  category: Water, facings: 1, par_each: 6}
+      - {sku: "Volvic 500ml",                 category: Water, facings: 1, par_each: 6}
+
+  drinks-heavy:
+    label: "Drinks-heavy (bottle-led)"
+    note: "For hot/thirsty sites. Fewer snack facings, more bottles. 16 snack / 6 food / 26 bottle."
+    lines:
+      # --- snack tray ---
+      - {sku: "Mars Bar 51g",          category: Confectionery, facings: 2, par_each: 10}
+      - {sku: "Snickers 48g",          category: Confectionery, facings: 2, par_each: 10}
+      - {sku: "KitKat 4 Finger 41.5g", category: Confectionery, facings: 1, par_each: 10}
+      - {sku: "Dairy Milk 45g",        category: Confectionery, facings: 1, par_each: 10}
+      - {sku: "Twirl 43g",             category: Confectionery, facings: 1, par_each: 10}
+      - {sku: "Maltesers 37g",         category: Confectionery, facings: 1, par_each: 10}
+      - {sku: "Walkers Cheese & Onion Grab Bag 45g", category: Crisps, facings: 2, par_each: 8}
+      - {sku: "Walkers Ready Salted Grab Bag 45g",   category: Crisps, facings: 2, par_each: 8}
+      - {sku: "McCoy's Salt & Vinegar Grab Bag 45g", category: Crisps, facings: 1, par_each: 8}
+      - {sku: "Doritos Chilli Heatwave 40g",         category: Crisps, facings: 1, par_each: 8}
+      - {sku: "Wotsits Really Cheesy 36g",           category: Crisps, facings: 1, par_each: 8}
+      # --- food tray ---
+      - {sku: "Grenade Carb Killa Cookie Dough 60g", category: Protein/Health, facings: 1, par_each: 6}
+      - {sku: "Grenade Carb Killa Oreo 60g",         category: Protein/Health, facings: 1, par_each: 6}
+      - {sku: "Trek Protein Flapjack Cocoa Oat 50g", category: Protein/Health, facings: 1, par_each: 6}
+      - {sku: "Fulfil Chocolate & Hazelnut 55g",     category: Protein/Health, facings: 1, par_each: 6}
+      - {sku: "Optimum Nutrition Protein Shake Chocolate 330ml", category: Protein/Health, facings: 1, par_each: 5}
+      - {sku: "Grenade Protein Shake Chocolate Insanity 330ml",  category: Protein/Health, facings: 1, par_each: 5}
+      # --- bottle trays ---
+      - {sku: "Coca-Cola Original 330ml Can", category: Cold Drinks, facings: 3, par_each: 6}
+      - {sku: "Diet Coke 330ml Can",          category: Cold Drinks, facings: 3, par_each: 6}
+      - {sku: "Pepsi 330ml Can",              category: Cold Drinks, facings: 2, par_each: 6}
+      - {sku: "Fanta Orange 330ml Can",       category: Cold Drinks, facings: 2, par_each: 6}
+      - {sku: "7Up 330ml Can",                category: Cold Drinks, facings: 2, par_each: 6}
+      - {sku: "Lucozade Original 380ml",      category: Cold Drinks, facings: 2, par_each: 6}
+      - {sku: "Lipton Iced Tea Peach 330ml Can", category: Cold Drinks, facings: 2, par_each: 6}
+      - {sku: "Monster Energy 500ml Can",     category: Cold Drinks, facings: 2, par_each: 6}
+      - {sku: "Red Bull 250ml Can",           category: Cold Drinks, facings: 2, par_each: 6}
+      - {sku: "Oasis Citrus Punch 500ml",     category: Cold Drinks, facings: 2, par_each: 6}
+      - {sku: "Highland Spring Still 500ml",  category: Water, facings: 2, par_each: 6}
+      - {sku: "Highland Spring Sparkling 500ml", category: Water, facings: 1, par_each: 6}
+      - {sku: "Evian 500ml",                  category: Water, facings: 1, par_each: 6}

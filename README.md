@@ -89,7 +89,7 @@ and `scratch/spikes/`.
 | Path | What it is |
 |------|-----------|
 | `bos/AGENTS.md` | Entry point for agents & operators (read first) |
-| `bos/config/*.yaml` | Definitions: KPIs, cadence, tasks→pipelines→workflows, policies, risks |
+| `bos/config/*.yaml` | Definitions: KPIs, cadence, tasks→pipelines→workflows, policies, planograms, risks |
 | `bos/config/playbooks/*.md` | SOPs (restock, install, fault triage, cash recon, reorder, planogram) |
 | `bos/state/*` | Operational records (machine state, scorecard, cash, incidents, decisions) |
 | `bos/schema/*.json` | JSON Schema contracts for every state record |

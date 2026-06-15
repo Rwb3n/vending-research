@@ -218,6 +218,27 @@ def sheet_risks(wb):
     widths(ws, [6, 34, 12, 10, 38, 50])
 
 
+def sheet_planograms(wb):
+    ws = wb.create_sheet("Planograms")
+    r = title(ws, "Planograms", "Slot → SKU → par plan per machine. reorder.py refills to par. Par levels: spike 007.")
+    planograms = common.load_yaml(os.path.join(common.CONFIG_DIR, "planograms.yaml"))["planograms"]
+    header(ws, r, ["Planogram", "SKU", "Category", "Facings", "Par/facing", "Units"])
+    r += 1
+    for pid, pg in planograms.items():
+        total = sum(ln["facings"] * ln["par_each"] for ln in pg["lines"])
+        facings = sum(ln["facings"] for ln in pg["lines"])
+        ws.cell(row=r, column=1, value=f"{pid} ({facings} sel, {total} items)").font = Font(bold=True)
+        r += 1
+        for ln in pg["lines"]:
+            ws.cell(row=r, column=2, value=ln["sku"])
+            ws.cell(row=r, column=3, value=ln["category"])
+            ws.cell(row=r, column=4, value=ln["facings"])
+            ws.cell(row=r, column=5, value=ln["par_each"])
+            ws.cell(row=r, column=6, value=ln["facings"] * ln["par_each"])
+            r += 1
+    widths(ws, [16, 44, 16, 9, 11, 8])
+
+
 def sheet_assumptions(wb):
     ws = wb.create_sheet("Assumptions & Spikes")
     r = title(ws, "Assumptions & Spikes", "Evidence or spike. SPIKE rows have an experiment in scratch/spikes/.")
@@ -243,6 +264,7 @@ def main():
     sheet_playbooks(wb)
     sheet_policies(wb)
     sheet_machines(wb)
+    sheet_planograms(wb)
     sheet_risks(wb)
     sheet_assumptions(wb)
     wb.save(OUTPUT)

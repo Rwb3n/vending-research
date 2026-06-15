@@ -35,6 +35,7 @@ Every belief the OS encodes is listed here with its evidence status. The rule:
 | A11 | Product-cut rule: cut a line selling `<3 units/week` for `≥4 weeks`. | **SPIKE** | `scratch/spikes/005-product-cut-rule.md` |
 | A12 | Target operating run-rate is **15 vends/day/machine** (≈3.75× breakeven). | **SPIKE** | `scratch/spikes/006-vends-day-target.md` |
 | A13 | Machine-buy trigger: avg `>15 vends/day` sustained `≥6 weeks` across estate. | **SPIKE** | depends on A12; `scratch/spikes/006-vends-day-target.md` |
+| A14 | Planogram par levels (snack 10 / crisps 8 / food 6 / bottles 6 per facing). | **SPIKE** | `scratch/spikes/007-planogram-par-levels.md` (structure is evidenced; pars are guesses). |
 
 ## How to discharge a spike
 

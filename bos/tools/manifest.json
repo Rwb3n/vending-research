@@ -43,8 +43,8 @@
     {
       "id": "reorder",
       "cmd": "python bos/tools/reorder.py [--all]",
-      "does": "Build a purchase order (units + estimated cost by category) to refill due machines.",
-      "reads": ["bos/state/machines_state.json", "bos/config/policies.yaml", "data/products.json"],
+      "does": "Build a per-SKU purchase order: refills each machine's planogram toward par (scaled by current_fill), costed against the catalog, with true blended margin.",
+      "reads": ["bos/state/machines_state.json", "bos/config/policies.yaml", "bos/config/planograms.yaml", "data/products.json"],
       "writes": [],
       "when": "Weekly supplier reorder, before a restock run."
     },

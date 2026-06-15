@@ -1,0 +1,19 @@
+{
+  "_meta": {
+    "id": "bos.schema.planogram_line",
+    "purpose": "Contract for one line of a planogram: a SKU, how many slots (facings) it occupies, and the par (max units) per facing.",
+    "applies_to": "config/planograms.yaml -> planograms.<id>.lines[]",
+    "updated": "2026-06-15"
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Planogram Line",
+  "type": "object",
+  "required": ["sku", "category", "facings", "par_each"],
+  "additionalProperties": false,
+  "properties": {
+    "sku": {"type": "string", "description": "Exact product name from data/products.json."},
+    "category": {"type": "string", "description": "Product category (must match the catalog)."},
+    "facings": {"type": "integer", "minimum": 1, "description": "Number of selections/slots this SKU occupies. Top sellers get more."},
+    "par_each": {"type": "integer", "minimum": 1, "description": "Max units held per facing (the refill-to target)."}
+  }
+}

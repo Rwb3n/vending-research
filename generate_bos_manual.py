@@ -140,7 +140,18 @@ def main():
     # machines
     mc = common.load_json(os.path.join(common.STATE_DIR, "machines_state.json"))["machines"]
     mc_rows = [[E(m["machine_id"]), E(m["site"]), E(m["status"]),
-                f"{round(m['current_fill']*100)}%", E(m.get("last_restock", ""))] for m in mc]
+                f"{round(m['current_fill']*100)}%", E(m.get("planogram", "")), E(m.get("last_restock", ""))] for m in mc]
+
+    # planograms (summary: per planogram, facings + items + category mix)
+    pg_rows = []
+    for pid, pg in cfg("planograms.yaml")["planograms"].items():
+        facings = sum(ln["facings"] for ln in pg["lines"])
+        items = sum(ln["facings"] * ln["par_each"] for ln in pg["lines"])
+        cats = {}
+        for ln in pg["lines"]:
+            cats[ln["category"]] = cats.get(ln["category"], 0) + ln["facings"]
+        mix = ", ".join(f"{c} {n}" for c, n in sorted(cats.items(), key=lambda x: -x[1]))
+        pg_rows.append([f"<code>{E(pid)}</code>", E(pg.get("label", "")), f"{facings} sel / {items} items", E(mix)])
 
     doc = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -148,7 +159,7 @@ def main():
 <header><h1>The Snack Choice — Operating Manual</h1>
 <p>The system that runs the business. North star: <b>revenue per operator-hour</b>. Optimised for agentic automation — everything is a file, tools are deterministic.</p></header>
 <nav><a href="#scorecard">Scorecard</a><a href="#cadence">Cadence</a><a href="#work">Work</a>
-<a href="#playbooks">Playbooks</a><a href="#policies">Policies</a><a href="#machines">Fleet</a>
+<a href="#playbooks">Playbooks</a><a href="#policies">Policies</a><a href="#machines">Fleet</a><a href="#planograms">Planograms</a>
 <a href="#risks">Risks</a><a href="#spikes">Assumptions</a><a href="#agents">For agents</a></nav>
 <div class="wrap">
 {section("scorecard", f"Scorecard — {week}", "Computed by bos/tools/kpi.py. ★ = north star. Never hand-edited.", f'<div class="kpis">{kpi_cards}</div>')}
@@ -156,7 +167,8 @@ def main():
 {section("work", "Tasks → Pipelines → Workflows", "No roles, only work. Any task runs by agent or human.", table(["Workflow","Cadence","Pipeline (tasks)","Done when"], wf_rows))}
 {section("playbooks", "Playbooks (SOPs)", "Human-runnable procedures. Full text in bos/config/playbooks/.", table(["Playbook","Trigger","Protects KPI","File"], pb_rows))}
 {section("policies", "Decision Policies", "Deterministic rules via bos/tools/policy.py. Verdicts logged to decisions.jsonl.", table(["Policy","Question","Rules (first match wins)","Evidence"], pol_rows))}
-{section("machines", "Fleet", "Current state. Machines under 30% fill are due a restock.", table(["ID","Site","Status","Fill","Last restock"], mc_rows))}
+{section("machines", "Fleet", "Current state. Machines under 30% fill are due a restock.", table(["ID","Site","Status","Fill","Planogram","Last restock"], mc_rows))}
+{section("planograms", "Planograms", "Slot→SKU→par plan per machine; reorder.py refills to par. Full lines in bos/config/planograms.yaml. Par levels are spike 007.", table(["ID","Label","Size","Facing mix"], pg_rows))}
 {section("risks", "Risk Register", "Failure modes, early-warning signals, mitigations.", table(["ID","Risk","L/I","Signal","Mitigation"], rk_rows))}
 {section("spikes", "Assumptions & Spikes", "Evidence or spike. Open spikes are guesses under test in scratch/spikes/.", table(["Spike","Question","Status","Unblocks"], sp_rows))}
 {section("agents", "For agents", "Operate the digital layer cheaply.", '''
