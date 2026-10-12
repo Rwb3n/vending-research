@@ -30,6 +30,7 @@ exists to push that up. Viability bands: red `<£15`, amber, green `>£30` (see
 | Know what tools exist               | `tools/manifest.json` (the API)             |
 | Compute this week's numbers         | `python tools/kpi.py compute --latest`      |
 | Decide a site / product / purchase  | `python tools/policy.py evaluate ...`       |
+| Brief the 3 readers (machine/ghost/pilot) | `python tools/brief.py --latest`      |
 | Plan a restock run                  | `python tools/route.py plan`                |
 | Build a purchase order              | `python tools/reorder.py`                   |
 | Check a file is valid               | `python tools/validate.py <file>`           |

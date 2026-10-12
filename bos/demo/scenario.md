@@ -25,12 +25,17 @@ It's Monday morning. Last week (W25) just closed and the numbers are *almost* go
 
 1. **Close the week** — append the W25 scorecard (raw inputs).
 2. **Read the one number** — compute KPIs. North-star revenue/operator-hour holds green,
-   but **vends/machine/day slips to amber** and **cash variance is amber**.
-3. **Decide** — the amber/red KPIs and a flagged collection drive three policy
-   evaluations (logged, auditable): keep/fix/cut the estate, investigate the cash
-   variance, and a margin check.
+   but four KPIs flag amber (vends/machine/day, stockout, cash variance, live machines).
+3. **Brief & decide** — one truth → three views (`brief.py`). The green north star still logs
+   a weekly **heartbeat** (KEEP) so `decisions.jsonl` is a reproducible logbook, not just an
+   exception report. Each flag carries an `acts_via` binding, so the brief partitions the work
+   by trust: **runnable** (the ghost evaluates the policy and logs the verdict unattended —
+   here, cash variance → WATCH), **proposes** (needs the pilot's multi-week judgment — live
+   machines → machine-buy), and **manual** (follow a human playbook — stockout, vends). No
+   hand-wired decisions; every action is computed from `kpis.yaml` and week-anchored.
 4. **Replenish** — plan the clustered restock route and build the per-SKU purchase order.
-5. **Close the loop** — regenerate the operating manual reflecting the new week.
+5. **Close the loop** — regenerate the operating manual reflecting the new week. The pilot's
+   own next-steps are in the regenerated **operator brief** (`bos/demo/out/live/brief.operator.md`).
 
 ## Run it
 

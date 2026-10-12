@@ -24,6 +24,11 @@ kpis:
     target: 30
     thresholds: {green: 30, red: 15}
     evidence: "EVIDENCED (A2) — Performance Review bands red<£15, green>£30."
+    # acts_via: the bound response when this KPI flags. mode = runnable (ghost
+    # evaluates+logs unattended) | proposes (ghost drafts a `proposed` decision,
+    # pilot commits) | manual (human playbook). input_map renames the KPI value
+    # to the policy's input field. consumed_by tools/brief.py.
+    acts_via: {kind: policy, target: site-keep-fix-cut, input_map: {rev_per_operator_hour: value}, mode: runnable}
 
   - id: gross_margin_pct
     label: Blended gross margin
@@ -34,6 +39,7 @@ kpis:
     target: 50
     thresholds: {green: 50, red: 40}
     evidence: "EVIDENCED (A5) — data/products.json wholesale vs vend prices."
+    acts_via: {kind: policy, target: price-change, input_map: {gross_margin_pct: value}, mode: runnable}
 
   - id: vends_per_machine_per_day
     label: Vends per machine per day
@@ -44,6 +50,7 @@ kpis:
     target: 15
     thresholds: {green: 15, red: 4}
     evidence: "MIXED — red=4 breakeven EVIDENCED (A4); green=15 target is SPIKE 006."
+    acts_via: {kind: playbook, target: planogram-update, mode: manual}
 
   - id: stockout_rate_pct
     label: Stockout rate
@@ -54,6 +61,7 @@ kpis:
     target: 5
     thresholds: {green: 5, red: 10}
     evidence: "SPIKE 003 — target <5% is a guess pending data."
+    acts_via: {kind: playbook, target: fault-triage, mode: manual}
 
   - id: cash_variance_pct
     label: Cash variance (collected vs expected)
@@ -64,6 +72,8 @@ kpis:
     target: 0
     thresholds: {green: 2, red: 4}
     evidence: "SPIKE 004 — ±2% noise floor is a guess pending reconciliation data."
+    # value is signed; cash-investigate keys on abs(variance_pct), so pass value through.
+    acts_via: {kind: policy, target: cash-investigate, input_map: {variance_pct: value}, mode: runnable}
 
   - id: route_revenue_per_hour
     label: Route revenue per hour (on-road efficiency)
@@ -74,6 +84,7 @@ kpis:
     target: 44
     thresholds: {green: 44, red: 25}
     evidence: "EVIDENCED (A3) — clustered ~£44/hr vs scattered £15-25/hr (Strategy Notes)."
+    acts_via: {kind: playbook, target: restock-run, mode: manual}
 
   - id: machines_live
     label: Live machines
@@ -84,3 +95,8 @@ kpis:
     target: 5
     thresholds: {green: 5, red: 1}
     evidence: "Operational — counted from machines_state.json."
+    # proposes: machine-buy keys on demand signals (vends_per_day, weeks_sustained,
+    # stockout_present) — NOT derivable from a machine count or one week. The ghost
+    # drafts a `proposed` decision and names the missing inputs; the pilot supplies
+    # multi-week judgment and commits. needs lists inputs the single-week compute lacks.
+    acts_via: {kind: policy, target: machine-buy, mode: proposes, needs: [vends_per_day, weeks_sustained, stockout_present]}

@@ -25,12 +25,12 @@
     },
     {
       "id": "policy",
-      "cmd": "python bos/tools/policy.py evaluate --decision <id> --input <json> [--subject S] [--log]",
-      "does": "Evaluate a decision policy (first matching rule wins) and optionally log an auditable decision.",
-      "reads": ["bos/config/policies.yaml"],
-      "writes": ["bos/state/decisions.jsonl (with --log)"],
+      "cmd": "python bos/tools/policy.py evaluate --decision <id> --input <json> [--subject S] [--week W] [--log]",
+      "does": "Evaluate a decision policy (first matching rule wins) and optionally log an auditable decision. --log is week-anchored (date = Monday of --week, not wall-clock) and idempotent per (week, policy, subject): re-logging the same week is a no-op, so the decisions.jsonl logbook is reproducible.",
+      "reads": ["bos/config/policies.yaml", "bos/state/decisions.jsonl (for dedupe)"],
+      "writes": ["bos/state/decisions.jsonl (with --log; record carries id/date/week/verdict)"],
       "decisions": ["site-go-nogo", "site-keep-fix-cut", "cash-investigate", "price-change", "product-cut", "machine-buy"],
-      "when": "Any go/no-go, keep/fix/cut, buy/hold, or threshold decision."
+      "when": "Any go/no-go, keep/fix/cut, buy/hold, or threshold decision. brief.py emits ready-to-run --week --log commands."
     },
     {
       "id": "route",
@@ -55,6 +55,14 @@
       "reads": ["bos/schema/scorecard_entry.schema.json", "bos/state/scorecard.jsonl"],
       "writes": ["bos/state/scorecard.jsonl"],
       "when": "Start of the weekly review, to close the prior week."
+    },
+    {
+      "id": "brief",
+      "cmd": "python bos/tools/brief.py [--latest|--week W] [--out DIR]",
+      "does": "Project the latest KPI truth into THREE deterministic views: state.json (machine, lossless), brief.agent.json (ghost: each flag's acts_via action + runnable/proposes/manual partition + ready-to-run command), brief.operator.md (pilot: the one number, ranked flags, the next action per flag). No LLM; the action is a join over kpis.yaml#acts_via. Run twice -> byte-identical.",
+      "reads": ["bos/config/kpis.yaml (acts_via)", "bos/config/policies.yaml", "bos/config/playbooks/*", "bos/state/* (via kpi.py)"],
+      "writes": ["<out>/state.json", "<out>/brief.agent.json", "<out>/brief.operator.md"],
+      "when": "End of the weekly review, to brief the three readers. The ghost reads brief.agent.json to pick its next action; the pilot reads brief.operator.md."
     },
     {
       "id": "build",

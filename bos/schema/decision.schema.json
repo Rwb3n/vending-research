@@ -13,12 +13,14 @@
   "additionalProperties": false,
   "properties": {
     "id": {"type": "string", "description": "Unique decision id, e.g. DEC-2026-001."},
-    "date": {"type": "string", "format": "date"},
+    "date": {"type": "string", "format": "date", "description": "Monday of the reviewed week (week-anchored, not wall-clock) so the logbook is reproducible."},
+    "week": {"type": "string", "description": "ISO week reviewed, e.g. 2026-W24. Dedupe key with policy+subject. Optional: pre-heartbeat records omit it."},
     "policy": {"type": "string", "description": "Policy id from config/policies.yaml."},
     "subject": {"type": "string", "description": "What the decision is about, e.g. a site or SKU name."},
     "verdict": {"type": "string", "description": "The outcome, e.g. GO / WATCH / NO / CUT / KEEP / BUY / HOLD."},
     "reasons": {"type": "array", "items": {"type": "string"}, "description": "Human-readable reasons the policy produced this verdict."},
     "inputs": {"type": "object", "description": "The input values evaluated."},
-    "decided_by": {"type": "string", "enum": ["agent", "operator"], "default": "operator"}
+    "decided_by": {"type": "string", "enum": ["agent", "operator"], "default": "operator"},
+    "status": {"type": "string", "enum": ["proposed", "committed"], "default": "committed", "description": "proposed = ghost-drafted (acts_via mode: proposes), awaiting pilot approval; committed = in force. Default keeps all prior records valid."}
   }
 }
